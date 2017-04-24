@@ -98,7 +98,10 @@
   </PropertyGroup>
   <Target Name="AfterBuild">
     <!-- package with NuGet -->
-    <Exec WorkingDirectory="$(BaseDir)" Command="if $(ConfigurationName) == Release ..\.paket\paket.exe -v pack output nugets version 1.0.0 --log-file paket_build_log.txt" />
+    <Exec WorkingDirectory="$(BaseDir)" Command="
+      if $(ConfigurationName) == Release (
+        ..\.paket\paket.exe -v pack output nugets version 1.0.0 --log-file paket_build_log.txt
+      )" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
