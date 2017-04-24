@@ -1,0 +1,37 @@
+NUGET
+  remote: https://www.nuget.org/api/v2
+    Castle.Core (3.3.3) - framework: >= net46
+    log4net (2.0.5) - framework: >= net46
+    Microsoft.Net.Compilers (1.3.2) - framework: >= net46
+    Microsoft.Reactive.Testing (3.1.1) - framework: >= net46
+      System.Reactive.PlatformServices (>= 3.1.1)
+    Moq (4.5.29) - framework: >= net46
+      Castle.Core (>= 3.3.3) - framework: >= net45
+    Newtonsoft.Json (9.0.1) - framework: >= net46
+    NuGet.CommandLine (3.5)
+    RabbitMQ.Client (4.1.1) - framework: >= net46
+    System.Reactive (3.1.1) - framework: >= net46
+      System.Reactive.PlatformServices (>= 3.1.1)
+      System.Reactive.Windows.Threading (>= 3.1.1) - framework: >= net45, winv4.5.1, wpav8.1
+    System.Reactive.Core (3.1.1) - framework: >= net46
+      System.Reactive.Interfaces (>= 3.1.1) - framework: >= net45, >= netstandard10, netcore10
+    System.Reactive.Interfaces (3.1.1) - framework: >= net46
+    System.Reactive.Linq (3.1.1) - framework: >= net46
+      System.Reactive.Core (>= 3.1.1) - framework: >= net45, >= netstandard10
+    System.Reactive.PlatformServices (3.1.1) - framework: >= net46
+      System.Reactive.Linq (>= 3.1.1)
+    System.Reactive.Windows.Threading (3.1.1) - framework: >= net46
+      System.Reactive.Core (>= 3.1.1)
+    xunit (2.1) - framework: >= net46
+      xunit.assert (2.1)
+      xunit.core (2.1)
+    xunit.abstractions (2.0) - framework: >= net46
+    xunit.assert (2.1) - framework: >= net46
+    xunit.core (2.1) - framework: >= net46
+      xunit.extensibility.core (2.1) - framework: >= net45, dnx451, dnxcore50, monoandroid, monotouch, portable-net45+win80+wp80+wpa81, xamarinios, winv4.5, wpv8.0, wpav8.1
+      xunit.extensibility.execution (2.1) - framework: >= net45, dnx451, dnxcore50, monoandroid, monotouch, portable-net45+win80+wp80+wpa81, xamarinios, winv4.5, wpv8.0, wpav8.1
+    xunit.extensibility.core (2.1) - framework: >= net46
+      xunit.abstractions (2.0)
+    xunit.extensibility.execution (2.1) - framework: >= net46
+      xunit.extensibility.core (2.1) - framework: >= net45, dnx451, dnxcore50, monoandroid, monotouch, xamarinios, winv4.5, wpv8.0, wpav8.1
+    xunit.runner.visualstudio (2.1) - framework: >= net46

@@ -1,0 +1,9 @@
+type project
+licenseUrl http://opensource.org/licenses/MIT
+projectUrl https://github.com/jkone27/AliceMQ
+include-referenced-projects true
+authors jkone27
+description simple RabbitMQ.Client wrapper for common operations
+files
+    bin\Release\AliceMQ.dll ==> lib\net46
+    bin\Release\AliceMQ.pdb ==> lib\net46
