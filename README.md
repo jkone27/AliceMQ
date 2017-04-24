@@ -8,12 +8,18 @@ An easy to use frontend for MQ system (now supporting RabbitMq only, but would b
 
 ## Mailman (Producer)
 
-Usage of a rabbit producer dead simple:
+Usage of a mailman is dead simple:
 
 ```cs
 using AliceMQ.MailMan; //..
 
-var p = new RabbitProducer(new ExchangeParameters("A"));
+var serialization = new JsonSerializerSettings
+{
+    MissingMemberHandling = MissingMemberHandling.Ignore,
+    ContractResolver = new FromPascalToJsContractResolver()
+};
+
+var p = new Mailman(mailArgs, formatting: Formatting.Indented, jsonSerializerSettings: serialization);
 p.PublishOne(new Msg("one"), "");
 ```
 

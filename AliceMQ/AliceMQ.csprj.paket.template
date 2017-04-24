@@ -1,7 +1,7 @@
 type project
 licenseUrl http://opensource.org/licenses/MIT
 projectUrl https://github.com/jkone27/AliceMQ
-iconUrl https://github.com/jkone27/AliceMQ/master/Pics/whiterabbitico01.png
+iconUrl https://raw.githubusercontent.com/jkone27/AliceMQ/master/Pics/whiterabbitico01.png
 authors jkone27
 description simple RabbitMQ.Client wrapper for common operations
 dependencies
