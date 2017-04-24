@@ -1,6 +1,6 @@
 # AliceMQ
 
-<img src="https://github.com/jkone27/AliceMQ/blob/master/Whiterabbit_tenniel.jpg?raw=true" width="20%" height="20%"/>
+<img src="https://github.com/jkone27/AliceMQ/blob/master/Pics/Whiterabbit_tenniel.jpg?raw=true" width="20%" height="20%"/>
 
 An easy to use frontend for MQ system (now supporting RabbitMq only, but would be nice to extend to other systems) using Reactive Extensions and a Publish/Subscribe paradigm.
 
