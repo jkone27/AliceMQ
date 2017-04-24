@@ -50,7 +50,7 @@ var serialization = new JsonSerializerSettings
 var custom = new CustomMailBox<Msg>(mb, serialization);
 ```
 
-## ConfirmableMailbox (observer of ConfirmableMessage\<T\>)
+## ConfirmableMailbox (observable of ConfirmableMessage\<T\>)
 
 the ConfirmableMailbox is build upon the typed consumer, and adds the ability to consume ConfirmableMessage (ackable) type messages, which have the ability to notify their observing consumer when a message wants to be accepted (acked) or rejected (nacked), decoupling message delivery confirmation from the consumer.
 
