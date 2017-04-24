@@ -81,9 +81,6 @@
   <ItemGroup>
     <None Include="AliceMQ.csprj.paket.template" />
     <None Include="app.config" />
-    <None Include="AliceMQ.nuspec">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="paket.references" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
