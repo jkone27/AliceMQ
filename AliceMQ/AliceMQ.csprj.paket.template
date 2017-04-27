@@ -5,7 +5,6 @@ iconUrl https://raw.githubusercontent.com/jkone27/AliceMQ/master/Pics/whiterabbi
 authors jkone27
 description simple RabbitMQ.Client wrapper for common operations
 dependencies
-    log4net ~> LOCKEDVERSION
     Microsoft.Net.Compilers ~> LOCKEDVERSION
     Newtonsoft.Json ~> LOCKEDVERSION
     RabbitMQ.Client ~> LOCKEDVERSION
