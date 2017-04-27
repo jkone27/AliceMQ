@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AliceMQ.ExtensionMethods;
+using AliceMQ.MailBox;
 using AliceMQ.MailMan.Interface;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
@@ -11,21 +12,16 @@ namespace AliceMQ.MailMan
     public abstract class RabbitMailmanLogic
     {
         public string ExchangeName => _mailArgs.ExchangeName;
-
         public bool DefaultExchange => string.IsNullOrWhiteSpace(ExchangeName);
 
         protected readonly ConnectionFactory Factory;
-
         private readonly MailArgs _mailArgs;
         private readonly Formatting _formatting;
         private readonly JsonSerializerSettings _serializerSettings;
 
-        protected RabbitMailmanLogic(MailArgs mailArgs,
-            string hostName = "localhost",
-            int port = 5672,
-            string userName = ConnectionFactory.DefaultUser,
-            string password = ConnectionFactory.DefaultPass,
-            string virtualHost = ConnectionFactory.DefaultVHost,
+        protected RabbitMailmanLogic(
+            EndpointArgs endpointArgs, 
+            MailArgs mailArgs,
             Formatting formatting = Formatting.None,
             JsonSerializerSettings serializerSettings = null)
         {
@@ -34,24 +30,30 @@ namespace AliceMQ.MailMan
             _serializerSettings = serializerSettings;
             Factory = new ConnectionFactory
             {
-                HostName = hostName,
-                Port = port,
-                UserName = userName,
-                Password = password,
-                VirtualHost = virtualHost
+                HostName = endpointArgs.HostName,
+                Port = endpointArgs.Port,
+                UserName = endpointArgs.UserName,
+                Password = endpointArgs.Password,
+                VirtualHost = endpointArgs.VirtualHost,
+                NetworkRecoveryInterval = endpointArgs.NetworkRecoveryInterval,
+                AutomaticRecoveryEnabled = endpointArgs.AutomaticRecoveryEnabled
             };
         }
 
-        protected RabbitMailmanLogic(string connectionUrl, MailArgs mailArgs, 
+        protected RabbitMailmanLogic(
+            SimpleEndpointArgs simpleEndpointArgs, 
+            MailArgs mailArgs, 
             Formatting formatting = Formatting.None,
             JsonSerializerSettings serializerSettings = null)
-            : this(mailArgs)
         {
+            _mailArgs = mailArgs;
             _formatting = formatting;
             _serializerSettings = serializerSettings;
             Factory = new ConnectionFactory
             {
-                Uri = connectionUrl
+                Uri = simpleEndpointArgs.ConnectionUrl,
+                NetworkRecoveryInterval = simpleEndpointArgs.NetworkRecoveryInterval,
+                AutomaticRecoveryEnabled = simpleEndpointArgs.AutomaticRecoveryEnabled
             };
         }
 

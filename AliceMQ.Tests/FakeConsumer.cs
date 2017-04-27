@@ -11,8 +11,8 @@ namespace AliceMQ.Tests
 
         public IObservable<BasicDeliverEventArgs> Source;
 
-        public FakeConsumer(IObservable<BasicDeliverEventArgs> source) 
-            : base(new ConnectionFactoryParams(), null, false)
+        public FakeConsumer(IObservable<BasicDeliverEventArgs> source, bool autoAck) 
+            : base(new EndpointArgs(), null, autoAck)
         {
             Source = source;
             Source.Subscribe(base.OnNext, base.OnError, base.OnCompleted);

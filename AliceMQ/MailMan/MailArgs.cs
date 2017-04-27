@@ -1,15 +1,16 @@
+using System;
 using System.Collections.Generic;
 
 namespace AliceMQ.MailMan
 {
     public class MailArgs
     {
-        public string ExchangeName { get; private set; }
-        public string QueueName { get; private set; }
-        public string ExchangeType { get; private set; }
-        public bool Durable { get; private set; }
-        public bool Exclusive { get; private set; }
-        public bool AutoDelete { get; private set; }
+        public string ExchangeName { get; }
+        public string QueueName { get; }
+        public string ExchangeType { get;  }
+        public bool Durable { get; }
+        public bool Exclusive { get; }
+        public bool AutoDelete { get; }
         public IDictionary<string, object> ExchangeArguments { get; set; } //must be settable at runtime
 
         public MailArgs(
@@ -28,6 +29,26 @@ namespace AliceMQ.MailMan
             Exclusive = exclusive;
             AutoDelete = autoDelete;
             ExchangeArguments = exchangeArguments ?? new Dictionary<string, object>();
+        }
+    }
+
+    public class Builder<T> where T : new()
+    {
+        private IList<Action<T>> _builderActions;
+
+        public T Build()
+        {
+            var istance = new T();
+            _builderActions = new List<Action<T>>();
+            foreach(var ba in _builderActions)
+                ba(istance);
+            return istance;
+        }
+
+        public Builder<T> With(Action<T> defineProperty)
+        {
+            _builderActions.Add(defineProperty);
+            return this;
         }
     }
 }

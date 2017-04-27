@@ -3,17 +3,17 @@ using RabbitMQ.Client;
 
 namespace AliceMQ.MailBox
 {
-    public class ConnectionFactoryParams
+    public class EndpointArgs: INetworkRecoveryInfo
     {
-        public string HostName { get; set; }
-        public int Port { get; set; }
-        public string UserName { get; set; }
-        public string Password { get; set; }
-        public string VirtualHost { get; set; }
-        public bool AutomaticRecoveryEnabled { get; set; }
-        public TimeSpan NetworkRecoveryInterval { get; set; }
+        public string HostName { get; }
+        public int Port { get; }
+        public string UserName { get; }
+        public string Password { get; }
+        public string VirtualHost { get; }
+        public bool AutomaticRecoveryEnabled { get;}
+        public TimeSpan NetworkRecoveryInterval { get;  }
 
-        public ConnectionFactoryParams(
+        public EndpointArgs(
             string hostName = "localhost", 
             int port = 5672, 
             string userName = ConnectionFactory.DefaultUser, 

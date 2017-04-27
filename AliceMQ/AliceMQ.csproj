@@ -43,6 +43,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MailBox\INetworkRecoveryInfo.cs" />
     <Compile Include="MailBox\MailboxException.cs" />
     <Compile Include="MailBox\MailboxSetupException.cs" />
     <Compile Include="MailBox\DeliveryArgs\AcceptDeliveryArgs.cs" />
@@ -54,7 +55,7 @@
     <Compile Include="ExtensionMethods\ActionExtensions.cs" />
     <Compile Include="ExtensionMethods\BasicPropertiesExtensions.cs" />
     <Compile Include="MailBox\MailboxArgs.cs" />
-    <Compile Include="MailBox\ConnectionFactoryParams.cs" />
+    <Compile Include="MailBox\EndpointArgs.cs" />
     <Compile Include="MailBox\Core\ConfirmableMailbox.cs" />
     <Compile Include="MailBox\Core\MailBox.cs" />
     <Compile Include="MailBox\Core\CustomMailBox.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="MailBox\Message\ConfirmableMessage.cs" />
     <Compile Include="MailBox\Message\IConfirmableMessage.cs" />
     <Compile Include="MailBox\Message\Message.cs" />
+    <Compile Include="MailBox\SimpleEndpointArgs.cs" />
     <Compile Include="MailBox\UntypedMessageException.cs" />
     <Compile Include="ExtensionMethods\ExceptionExtensions.cs" />
     <Compile Include="MailMan\Interface\IBasicPropertiesSetter.cs" />
@@ -98,25 +100,14 @@
   </PropertyGroup>
   <Target Name="AfterBuild">
     <!-- package with NuGet -->
-    <Exec WorkingDirectory="$(BaseDir)" Command="
-      if $(ConfigurationName) == Release (
-        ..\.paket\paket.exe -v pack output nugets version 1.0.0 --log-file paket_build_log.txt
-      )" />
+    <Exec WorkingDirectory="$(BaseDir)" Command="&#xD;&#xA;      if $(ConfigurationName) == Release (&#xD;&#xA;        ..\.paket\paket.exe -v pack output nugets version 1.0.0 --log-file paket_build_log.txt&#xD;&#xA;      )" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild"></Target><Target Name="AfterBuild"></Target>
   -->
   <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3')">
-      <ItemGroup>
-        <Reference Include="log4net">
-          <HintPath>..\packages\log4net\lib\net45-full\log4net.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3')" />
   </Choose>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3')">

@@ -23,22 +23,26 @@ namespace SampleApplication
         }
         static void Main(string[] args)
         {
-            var connectionFactoryParameters = new ConnectionFactoryParams();
+            var endpointArgs = new EndpointArgs();
             var mailArgs = new MailArgs("A", "A.q");
+
             var mailboxArgs = new MailboxArgs(mailArgs);
-
-            var mb = new MailBox(connectionFactoryParameters, mailboxArgs, false);
-
             var serialization = new JsonSerializerSettings
             {
                 MissingMemberHandling = MissingMemberHandling.Ignore,
-                ContractResolver = new FromPascalToJsContractResolver() 
+                ContractResolver = new FromPascalToJsContractResolver()
             };
+            var p = new Mailman(mailArgs, endpointArgs, formatting: Formatting.Indented, jsonSerializerSettings: serialization);
+            p.PublishOne(new Msg("first message published creates exchange if non existent"),"");
+
+            var mb = new MailBox(endpointArgs, mailboxArgs, false);
+
+     
 
             var custom = new CustomMailBox<Msg>(mb, serialization);
             var confirmable = new ConfirmableMailbox<Msg>(custom);
 
-            var p = new Mailman(mailArgs, formatting: Formatting.Indented, jsonSerializerSettings: serialization);
+           
 
             Task.Run(() => Console.WriteLine("waiting for messages.."));
 

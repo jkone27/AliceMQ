@@ -52,28 +52,27 @@ namespace AliceMQ.MailBox.Core
             _bagOfAckables = new List<ulong>();
         }
 
-        public MailBox(string connectionUrl,
-            MailboxArgs @params,
-            int networkRecoveryIntervalMinutes,
+        public MailBox(SimpleEndpointArgs simpleEndpointArgs,
+            MailboxArgs mailboxArgs,
             bool autoAck = true): this(autoAck) 
         {
-            Parameters = @params;
-            ConnectionUrl = connectionUrl;
+            Parameters = mailboxArgs;
+            ConnectionUrl = simpleEndpointArgs.ConnectionUrl;
             _factory = new ConnectionFactory
             {
-                Uri = connectionUrl,
-                AutomaticRecoveryEnabled = true,
-                NetworkRecoveryInterval = TimeSpan.FromMinutes(networkRecoveryIntervalMinutes)
+                Uri = simpleEndpointArgs.ConnectionUrl,
+                AutomaticRecoveryEnabled = simpleEndpointArgs.AutomaticRecoveryEnabled,
+                NetworkRecoveryInterval = simpleEndpointArgs.NetworkRecoveryInterval
             };
             Start();
         }
 
         public MailBox(
-            ConnectionFactoryParams connParams,
-            MailboxArgs @params,
+            EndpointArgs connParams,
+            MailboxArgs mailboxArgs,
             bool autoAck = true) : this(autoAck)
         {
-            Parameters = @params;
+            Parameters = mailboxArgs;
             _factory = new ConnectionFactory
             {
                 HostName = connParams.HostName,

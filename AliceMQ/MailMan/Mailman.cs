@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using AliceMQ.ExtensionMethods;
+using AliceMQ.MailBox;
 using AliceMQ.MailMan.Interface;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
@@ -16,31 +17,27 @@ namespace AliceMQ.MailMan
 
         public Mailman(
             MailArgs mailArgs, 
-            string hostName = "localhost",
-            int port = 5672,
-            string userName = ConnectionFactory.DefaultUser,
-            string password = ConnectionFactory.DefaultPass,
-            string virtualHost = ConnectionFactory.DefaultVHost,
+            EndpointArgs endpointArgs,
             Action<Exception> publishErrorAction = null,
             IStaticPropertiesSetter staticPropertiesSetter = null,
             Formatting formatting = Formatting.None,
             JsonSerializerSettings jsonSerializerSettings = null
         )
-            : base(mailArgs, hostName, port, userName, password, virtualHost, formatting, jsonSerializerSettings)
+            : base(endpointArgs, mailArgs, formatting, jsonSerializerSettings)
         {
             _staticPropertiesSetter = staticPropertiesSetter ?? new NoSetter();
             _publishErrorAction = publishErrorAction ?? (p => { });
         }
 
         public Mailman( 
-            string connectionUrl, 
+            SimpleEndpointArgs simpleEndpointArgs, 
             MailArgs mailArgs,
             Action<Exception> publishErrorAction = null,
             IStaticPropertiesSetter staticPropertiesSetter = null,
             Formatting formatting = Formatting.None,
             JsonSerializerSettings jsonSerializerSettings = null
             )
-            : base(connectionUrl, mailArgs, formatting, jsonSerializerSettings)
+            : base(simpleEndpointArgs, mailArgs, formatting, jsonSerializerSettings)
         {
             _staticPropertiesSetter = staticPropertiesSetter;
             _publishErrorAction = publishErrorAction ?? (p => { });

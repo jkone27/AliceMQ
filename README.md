@@ -85,3 +85,9 @@ public interface IConfirmableMessage
     void Reject(bool multiple = false, bool requeue = false);
 }
 ```
+
+## TODO
+
+- Fluent Builder / Factory Interface for MailBox and Mailman
+- Write more documentation for configuration classes (MailArgs, and MailBoxArgs)
+- More Exaustive names

@@ -24,8 +24,10 @@ namespace AliceMQ.Tests
                 new Mock<IBasicProperties>().Object, 
                 new byte[] {0});
 
-        [Fact]
-        public void Mailbox_ReceiveOne()
+        [Theory,
+            InlineData(true),
+            InlineData(false)]
+        public void Mailbox_ReceiveOne(bool autoAck)
         {
             var received = false;
             var s = new TestScheduler();
@@ -33,15 +35,17 @@ namespace AliceMQ.Tests
                 .Interval(TimeSpan.FromTicks(1), s)
                 .Select(z => NewArgs());
 
-            var c = new FakeConsumer(src);
+            var c = new FakeConsumer(src, autoAck);
             c.Subscribe(m => received = true);
            
             s.AdvanceBy(1);
             Assert.True(received);
         }
 
-        [Fact]
-        public void CustomMailbox_ReceiveOne()
+        [Theory,
+        InlineData(true),
+        InlineData(false)]
+        public void CustomMailbox_ReceiveOne(bool autoAck)
         {
             var received = false;
             var s = new TestScheduler();
@@ -49,7 +53,7 @@ namespace AliceMQ.Tests
                 .Interval(TimeSpan.FromTicks(1), s)
                 .Select(z => NewArgs());
 
-            var mb = new FakeConsumer(src);
+            var mb = new FakeConsumer(src, autoAck);
             var c = new CustomMailBox<string>(mb);
             c.Subscribe(m => received = true);
             
@@ -62,8 +66,10 @@ namespace AliceMQ.Tests
             public string Test { get; set; }
         }
 
-        [Fact]
-        public void CustomMailbox_ReceiveOne_UnableToDeserialize()
+        [Theory,
+            InlineData(true),
+            InlineData(false)]
+        public void CustomMailbox_ReceiveOne_UnableToDeserialize(bool autoAck)
         {
             string received = null;
             Exception ex = null;
@@ -72,7 +78,7 @@ namespace AliceMQ.Tests
                 .Interval(TimeSpan.FromTicks(1), s)
                 .Select(z => NewArgs());
 
-            var mb = new FakeConsumer(src);
+            var mb = new FakeConsumer(src, autoAck);
             var c = new CustomMailBox<TestClass>(mb);
             c.Subscribe(m => received = m.Datum.Test, e => ex = e);
 
@@ -80,6 +86,18 @@ namespace AliceMQ.Tests
             Assert.True(received == null);
             Assert.True(ex != null);
             Assert.ThrowsAny<UntypedMessageException>(() => { throw ex; });
+        }
+
+        [Fact]
+        public void ConfirmableMailbox_AutoAckTrue_ThrowsException()
+        {
+            var s = new TestScheduler();
+            var src = Observable
+                .Interval(TimeSpan.FromTicks(1), s)
+                .Select(z => NewArgs());
+            var mb = new FakeConsumer(src, true);
+            var custom = new CustomMailBox<string>(mb);
+            Assert.ThrowsAny<MailboxException>(() => new ConfirmableMailbox<string>(custom));
         }
 
         [Fact]
@@ -92,7 +110,7 @@ namespace AliceMQ.Tests
                 .Interval(TimeSpan.FromTicks(1), s)
                 .Select(z => NewArgs());
 
-            var mb = new FakeConsumer(src);
+            var mb = new FakeConsumer(src, false);
             var custom = new CustomMailBox<string>(mb);
             var c = new ConfirmableMailbox<string>(custom);
 
@@ -118,7 +136,7 @@ namespace AliceMQ.Tests
                 .Interval(TimeSpan.FromTicks(1), s)
                 .Select(z => NewArgs());
 
-            var mb = new FakeConsumer(src);
+            var mb = new FakeConsumer(src, false);
             var typed = new CustomMailBox<string>(mb);
             var c = new ConfirmableMailbox<string>(typed);
 
@@ -145,7 +163,7 @@ namespace AliceMQ.Tests
                 .Interval(TimeSpan.FromTicks(2), s)
                 .Select(z => NewArgs());
 
-            var mb = new FakeConsumer(src);
+            var mb = new FakeConsumer(src, false);
             var typed = new CustomMailBox<string>(mb);
             var c = new ConfirmableMailbox<string>(typed);
 

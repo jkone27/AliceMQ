@@ -3,7 +3,6 @@ source https://www.nuget.org/api/v2
 
 nuget NuGet.CommandLine
 nuget Castle.Core
-nuget log4net
 nuget Microsoft.Net.Compilers
 nuget Microsoft.Reactive.Testing
 nuget Moq
