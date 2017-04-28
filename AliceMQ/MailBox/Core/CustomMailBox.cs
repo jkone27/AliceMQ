@@ -30,7 +30,14 @@ namespace AliceMQ.MailBox.Core
 
         public void OnNext(BasicDeliverEventArgs args)
         {
-            _subject.OnNext(ConsumeMessage(args));
+            try
+            {
+                _subject.OnNext(ConsumeMessage(args));
+            }
+            catch (Exception ex)
+            {
+                OnError(ex);
+            }
         }
 
         private void OnCompleted()
@@ -50,41 +57,26 @@ namespace AliceMQ.MailBox.Core
                 var typedMessage = TypedMessage(Payload(e));
 
                 if (typedMessage == null)
-                    throw new UntypedMessageException("typedMessage is null.");
+                    throw new Exception("typedMessage is null.");
 
                 return new Message<T>(typedMessage, e);
             }
             catch (Exception ex)
             {
-                _subject.OnError(ex);
-                return null;
+                throw new CustomMailboxException(ex.Message, e);
             }
         }
 
         private T TypedMessage(string payload)
         {
-            try
-            {
-                return typeof(T) == typeof(string)
-                    ? (T) (object) payload
-                    : JsonConvert.DeserializeObject<T>(payload, _jsonSerializerSettings);
-            }
-            catch (Exception ex)
-            {
-                throw new UntypedMessageException(ex.Message);
-            }
+            return typeof(T) == typeof(string)
+                ? (T) (object) payload
+                : JsonConvert.DeserializeObject<T>(payload, _jsonSerializerSettings);
         }
 
         private static string Payload(BasicDeliverEventArgs e)
         {
-            try
-            {
-                return e.BasicProperties.GetEncoding().GetString(e.Body);
-            }
-            catch (Exception ex)
-            {
-                throw new UntypedMessageException(ex.Message);
-            }
+            return e.BasicProperties.GetEncoding().GetString(e.Body);
         }
 
         public bool AckRequest(ulong deliveryTag, bool multiple)

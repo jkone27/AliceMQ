@@ -43,6 +43,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MailBox\ConfirmableMessageException.cs" />
     <Compile Include="MailBox\INetworkRecoveryInfo.cs" />
     <Compile Include="MailBox\MailboxException.cs" />
     <Compile Include="MailBox\MailboxSetupException.cs" />
@@ -65,7 +66,7 @@
     <Compile Include="MailBox\Message\IConfirmableMessage.cs" />
     <Compile Include="MailBox\Message\Message.cs" />
     <Compile Include="MailBox\SimpleEndpointArgs.cs" />
-    <Compile Include="MailBox\UntypedMessageException.cs" />
+    <Compile Include="MailBox\CustomMailboxException.cs" />
     <Compile Include="ExtensionMethods\ExceptionExtensions.cs" />
     <Compile Include="MailMan\Interface\IBasicPropertiesSetter.cs" />
     <Compile Include="MailMan\Interface\IMailman.cs" />

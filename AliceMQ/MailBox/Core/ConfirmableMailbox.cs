@@ -1,9 +1,13 @@
 using System;
+using System.CodeDom;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Reflection.Emit;
 using AliceMQ.MailBox.DeliveryArgs;
 using AliceMQ.MailBox.Interface;
 using AliceMQ.MailBox.Message;
+using RabbitMQ.Client.Events;
 
 namespace AliceMQ.MailBox.Core
 {
@@ -17,10 +21,15 @@ namespace AliceMQ.MailBox.Core
         private IDisposable _nackSub;
         private readonly IDisposable _consumerSub;
         private readonly ISubject<ConfirmableMessage<T>> _subject;
+        private readonly ISubject<ConfirmableMessage<T>> _backup;
+        private readonly ISubject<ConfirmableMessage<T>> _innerFallback;
 
-        public ConfirmableMailbox(IConfirmable<Message<T>> customMailBox)
+        public ConfirmableMailbox(
+            IConfirmable<Message<T>> customMailBox)
         {
             _subject = new Subject<ConfirmableMessage<T>>();
+            _backup = new Subject<ConfirmableMessage<T>>();
+            _innerFallback = new Subject<ConfirmableMessage<T>>();
             _customMailBox = customMailBox;
             if(!_customMailBox.IsConfirmable)
                 throw new MailboxException("non ackable consumer");
@@ -30,8 +39,8 @@ namespace AliceMQ.MailBox.Core
 
         private void SubscribeAcknowledge()
         {
-            _ackHandler = _subject.AsObservable().Subscribe(SetupAckObservable);
-            _nackHandler = _subject.AsObservable().Subscribe(SetupNackObservable);
+            _ackHandler = _subject.AsObservable().Merge(_innerFallback.AsObservable()).Subscribe(SetupAckObservable);
+            _nackHandler = _subject.AsObservable().Merge(_innerFallback.AsObservable()).Subscribe(SetupNackObservable);
         }
 
         private void UnscribeAcknowledge()
@@ -71,7 +80,23 @@ namespace AliceMQ.MailBox.Core
 
         private void OnError(Exception ex)
         {
-            _subject.OnError(ex);
+            if (ex is CustomMailboxException)
+            {
+                try
+                {
+                    var e = (CustomMailboxException)ex;
+                    var msg = new Message<T>(default(T), e.Metadata);
+                    var confirmableMessage = new ConfirmableMessage<T>(msg);
+                    _innerFallback.OnNext(confirmableMessage); //must be set in order to enable Confirm and Reject of faulted messages
+                    _backup.OnError(new ConfirmableMessageException<T>(confirmableMessage, e.Message));
+                }
+                catch(Exception z)
+                {
+                    _backup.OnError(z);
+                }
+            }
+            else
+                _subject.OnError(ex);
         }
 
         private void OnCompleted()
@@ -87,8 +112,7 @@ namespace AliceMQ.MailBox.Core
 
         public IDisposable Subscribe(IObserver<ConfirmableMessage<T>> observer)
         {
-            return _subject.AsObservable().Subscribe(observer);
+            return _subject.Merge(_backup).AsObservable().Subscribe(observer);
         }
     }
-
 }

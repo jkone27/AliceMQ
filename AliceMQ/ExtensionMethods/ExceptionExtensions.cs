@@ -1,4 +1,5 @@
 ﻿using System;
+using AliceMQ.MailBox;
 
 namespace AliceMQ.ExtensionMethods
 {
@@ -20,6 +21,11 @@ namespace AliceMQ.ExtensionMethods
             {
                 two(e);
             }
+        }
+
+        public static ConfirmableMessageException<T> AsConfirmable<T>(this Exception ex)
+        {
+            return (ConfirmableMessageException<T>) ex;
         }
     }
 }

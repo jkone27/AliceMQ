@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Threading.Tasks;
+using AliceMQ.ExtensionMethods;
 using AliceMQ.MailBox;
 using AliceMQ.MailBox.Core;
 using AliceMQ.MailBox.Message;
@@ -14,9 +15,9 @@ namespace SampleApplication
     {
         public class Msg
         {
-            public string Content { get; }
+            public int Content { get; }
 
-            public Msg(string content)
+            public Msg(int content)
             {
                 Content = content;
             }
@@ -33,7 +34,8 @@ namespace SampleApplication
                 ContractResolver = new FromPascalToJsContractResolver()
             };
             var p = new Mailman(mailArgs, endpointArgs, formatting: Formatting.Indented, jsonSerializerSettings: serialization);
-            p.PublishOne(new Msg("first message published creates exchange if non existent"),"");
+            //first message published creates exchange if non existent
+            p.PublishOne(new Msg(1),"");
 
             var mb = new MailBox(endpointArgs, mailboxArgs, false);
 
@@ -50,7 +52,7 @@ namespace SampleApplication
             mb.Subscribe(am =>
             {
                 Console.WriteLine("mailbox - " + Encoding.UTF8.GetString(am.Body));
-            }, Console.WriteLine, () => Console.WriteLine("completed"));
+            });
 
             custom.Subscribe(am =>
             {
@@ -61,6 +63,12 @@ namespace SampleApplication
             {
                 Console.WriteLine("confirmable mailbox - " + am.Message.Datum.Content);
                 am.Accept();
+            },
+            e =>
+            {
+                var cm = e.AsConfirmable<Msg>().ConfirmableMessage;
+                Console.WriteLine("confirmable mailbox - Exception! accepting message. (discard)");
+                cm.Accept();
             });
 
             confirmable.Subscribe(am =>
@@ -80,7 +88,8 @@ namespace SampleApplication
             var count = 0;
             while (exit != ConsoleKey.Y)
             {
-                p.PublishOne(new Msg("msg" + count++), "");
+                p.PublishOne(new Msg(count++), "");
+                p.PublishOne("{ \"Content\": \"wrong message\" }", ""); //publish a broken message to test exception handling
                 exit = Console.ReadKey().Key;
             }
 

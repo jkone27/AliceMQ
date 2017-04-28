@@ -119,6 +119,7 @@ namespace AliceMQ.MailBox.Core
 
         protected void OnError(Exception e)
         {
+            //this is never invoked, see: https://social.msdn.microsoft.com/Forums/en-US/def04a38-1bec-4ff9-b4a5-9c15ba92f582/onerror-question-using-fromeventpattern?forum=rx
             _subject.OnError(e);
         }
 
