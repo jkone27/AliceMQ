@@ -1,0 +1,19 @@
+type project
+licenseUrl http://opensource.org/licenses/MIT
+projectUrl https://github.com/jkone27/AliceMQ
+iconUrl https://raw.githubusercontent.com/jkone27/AliceMQ/master/Pics/whiterabbitico01.png
+authors jkone27
+description simple RabbitMQ.Client wrapper for common operations
+dependencies
+    Microsoft.Net.Compilers ~> LOCKEDVERSION
+    Newtonsoft.Json ~> LOCKEDVERSION
+    RabbitMQ.Client ~> LOCKEDVERSION
+    System.Reactive ~> LOCKEDVERSION
+    System.Reactive.Core ~> LOCKEDVERSION
+    System.Reactive.Interfaces ~> LOCKEDVERSION
+    System.Reactive.Linq ~> LOCKEDVERSION
+    System.Reactive.PlatformServices ~> LOCKEDVERSION
+    System.Reactive.Windows.Threading ~> LOCKEDVERSION
+files
+    bin\Release\AliceMQ.dll ==> lib\net46
+    bin\Release\AliceMQ.pdb ==> lib\net46
