@@ -54,28 +54,46 @@ var serialization = new JsonSerializerSettings
 };
 
 var custom = new CustomMailBox<Msg>(mb, serialization);
+
+custom.Subscribe(am =>
+{
+    if (am.IsOk<Msg>())
+    {
+        Console.WriteLine("ok - " + am.AsOk<Msg>().Message.Bla);
+    }
+    else
+    {
+        Console.WriteLine("error - " + am.AsError().Ex);
+    }
+});
 ```
 
-## ConfirmableMailbox (observable of ConfirmableMessage\<T\>)
+## ConfirmableMailbox (observable of ConfirmableEnvelope)
 
-the ConfirmableMailbox is build upon the typed consumer, and adds the ability to consume ConfirmableMessage (ackable) type messages, which have the ability to notify their observing consumer when a message wants to be accepted (acked) or rejected (nacked), decoupling message delivery confirmation from the consumer.
+the ConfirmableMailbox is build upon the typed consumer, and adds the ability to consume ConfirmableEnvelope (ackable) messages, which have the ability to notify their observing consumer when a message wants to be accepted (acked) or rejected (nacked), decoupling message delivery confirmation from the consumer.
 
 This can be done only if the original mailBox was enabled to give acks and nacks via its properties (otherwise an exception is readilly raised)
 
 ```cs
-var confirmable = new ConfirmableMailbox<T>(custom);
+var confirmable = new ConfirmableMailbox(custom);
 
 confirmable.Subscribe(cm =>
 {
-    //OnNext
-    //...
-    cm.Accept(); //or cm.Reject();
-    //...
+    if (am.Content.IsOk<Msg>())
+    {
+        Console.WriteLine("ok - " + am.Content.AsOk<Msg>().Message?.Bla);
+        am.Accept();
+    }
+    else
+    {
+        Console.WriteLine("error - " + am.Content.AsError().Ex);
+        am.Reject();
+    }
 }, OnError, OnComplete);
 ```
 
 The class T is here internally wrapped within a confirmable container class, so that one can request one of its instances to confirm message delivery by either accepting or rejecting the message, requesting the observer of IConfirmableMessage (which is internal to ConfirmableMailbox) to ack or nack to its source.
-Message confirmation (ack or nack) can be done only once, otherwise a specific esception is thrown as runtime. Observed wrapped messages all implement the following interface:
+Message confirmation (ack or nack) can be done only once, otherwise a specific esception is thrown as runtime. Observed ConfirmableEnvelope messages all implement the following interface:
 
 
 ```cs

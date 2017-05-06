@@ -1,5 +1,5 @@
 using System;
-using AliceMQ.MailBox;
+using AliceMQ.MailBox.EndPointArgs;
 using RabbitMQ.Client.Events;
 
 namespace AliceMQ.Tests
@@ -15,7 +15,8 @@ namespace AliceMQ.Tests
             : base(new EndpointArgs(), null, autoAck)
         {
             Source = source;
-            Source.Subscribe(base.OnNext, base.OnError, base.OnCompleted);
+            Acks = 0;
+            Nacks = 0;
         }
 
         public override bool AckRequest(ulong deliveryTag, bool multiple)
@@ -30,21 +31,16 @@ namespace AliceMQ.Tests
             return true;
         }
 
-        protected override void SetupConsumer()
-        {
-            Acks = 0;
-            Nacks = 0;
-        }
+        protected override IObservable<BasicDeliverEventArgs> SourceSequence => Source;
 
-        protected override void DeadLetterSetup()
+        protected override void StartConsumer()
         {
             //
         }
 
-        protected override void SetupConsumerHandler()
+        protected override void SetupEnvironment()
         {
             //
         }
-
     }
 }

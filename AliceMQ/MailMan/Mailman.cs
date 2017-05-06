@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using AliceMQ.ExtensionMethods;
 using AliceMQ.MailBox;
+using AliceMQ.MailBox.EndPointArgs;
 using AliceMQ.MailMan.Interface;
 using Newtonsoft.Json;
 using RabbitMQ.Client;

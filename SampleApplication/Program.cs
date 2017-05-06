@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Text;
 using System.Threading.Tasks;
+using AliceMQ.ExtensionMethods;
 using AliceMQ.MailBox;
 using AliceMQ.MailBox.Core;
-using AliceMQ.MailBox.Message;
+using AliceMQ.MailBox.EndPointArgs;
 using AliceMQ.MailMan;
 using AliceMQ.Serialize;
 using Newtonsoft.Json;
@@ -14,11 +15,11 @@ namespace SampleApplication
     {
         public class Msg
         {
-            public string Content { get; }
+            public int Bla { get; }
 
-            public Msg(string content)
+            public Msg(int bla)
             {
-                Content = content;
+                Bla = bla;
             }
         }
         static void Main(string[] args)
@@ -33,58 +34,60 @@ namespace SampleApplication
                 ContractResolver = new FromPascalToJsContractResolver()
             };
             var p = new Mailman(mailArgs, endpointArgs, formatting: Formatting.Indented, jsonSerializerSettings: serialization);
-            p.PublishOne(new Msg("first message published creates exchange if non existent"),"");
+            //first message published creates exchange if non existent
+            p.PublishOne(new Msg(-1),"");
 
             var mb = new MailBox(endpointArgs, mailboxArgs, false);
 
-     
-
             var custom = new CustomMailBox<Msg>(mb, serialization);
-            var confirmable = new ConfirmableMailbox<Msg>(custom);
-
-           
+            var confirmable = new ConfirmableMailbox(custom);
 
             Task.Run(() => Console.WriteLine("waiting for messages.."));
 
-
+           
             mb.Subscribe(am =>
             {
-                Console.WriteLine("mailbox - " + Encoding.UTF8.GetString(am.Body));
-            }, Console.WriteLine, () => Console.WriteLine("completed"));
+                Console.WriteLine("A - " + Encoding.UTF8.GetString(am.Body));
+                //mb.AckRequest(am.DeliveryTag, false);
+            });
 
             custom.Subscribe(am =>
             {
-                Console.WriteLine("custom mailbox - " + am.Datum.Content);
-            });
-
-            confirmable.Subscribe(am =>
-            {
-                Console.WriteLine("confirmable mailbox - " + am.Message.Datum.Content);
-                am.Accept();
-            });
-
-            confirmable.Subscribe(am =>
-            {
-                try
+                if (am.IsOk<Msg>())
                 {
-                    Console.WriteLine("confirmable mailbox nr.2 - already acked " + am.Message.Datum.Content);
+                    Console.WriteLine("B - " + am.AsOk<Msg>().Message.Bla);
+                    //custom.AckRequest(am.RawData.DeliveryTag, false);
+                }
+                else
+                {
+                    Console.WriteLine("B- error: " + am.AsError().Ex);
+                    //custom.NackRequest(am.RawData.DeliveryTag, false, false);
+                }
+            });
+
+            confirmable.Subscribe(am =>
+            {
+                if (am.Content.IsOk<Msg>())
+                {
+                    Console.WriteLine("C - " + am.Content.AsOk<Msg>().Message?.Bla);
                     am.Accept();
                 }
-                catch (AlreadyConfirmedMessageException ex)
+                else
                 {
-                    Console.WriteLine(ex.GetType().Name); //ok, not possible to ack twice!
+                    Console.WriteLine("C - error." + am.Content.AsError().Ex);
+                    am.Reject();
                 }
+               
             });
 
             var exit = ConsoleKey.N;
             var count = 0;
             while (exit != ConsoleKey.Y)
             {
-                p.PublishOne(new Msg("msg" + count++), "");
+                p.PublishOne(new Msg(count++), "");
+                p.PublishOne("{ wrong message }", ""); //publish a broken message to test exception handling
                 exit = Console.ReadKey().Key;
             }
-
-            confirmable.Dispose();
         }
     }
 }

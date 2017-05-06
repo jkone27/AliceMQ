@@ -1,7 +1,7 @@
 using System;
 using RabbitMQ.Client;
 
-namespace AliceMQ.MailBox
+namespace AliceMQ.MailBox.EndPointArgs
 {
     public class EndpointArgs: INetworkRecoveryInfo
     {

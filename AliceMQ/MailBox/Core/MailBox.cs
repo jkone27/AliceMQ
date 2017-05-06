@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using AliceMQ.MailBox.EndPointArgs;
 using AliceMQ.MailBox.Interface;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -10,7 +12,7 @@ using RabbitMQ.Client.Events;
 namespace AliceMQ.MailBox.Core
 {
     public class MailBox
-        : IDisposable, IConfirmable<BasicDeliverEventArgs>
+        : IMailBox<BasicDeliverEventArgs>, IDisposable
     {
         public string ConnectionUrl { get; private set; }
         public string QueueName => Parameters.MailArgs.QueueName;
@@ -20,23 +22,21 @@ namespace AliceMQ.MailBox.Core
         public string DeadLetterExchangeName => Parameters.DeadLetterExchangeName;
 
         private readonly IConnectionFactory _factory;
-        private IDisposable _subscription;
         private IConnection _connection;
         private IModel _channel;
-        private EventingBasicConsumer _consumer;
         private readonly List<ulong> _bagOfAckables;
         private readonly object _lock;
+        private readonly CompositeDisposable _compositeDisposable;
 
 
         public IDisposable Subscribe(IObserver<BasicDeliverEventArgs> observer)
         {
-            return _subject.Subscribe(observer.OnNext, observer.OnError, observer.OnCompleted);
+            return PublicSequence().Subscribe(observer);
         }
-
-        private readonly ISubject<BasicDeliverEventArgs> _subject;
 
         public readonly MailboxArgs Parameters;
         private readonly bool _autoAck;
+        private EventingBasicConsumer _consumer;
 
         public bool IsConfirmable => !_autoAck;
 
@@ -47,14 +47,15 @@ namespace AliceMQ.MailBox.Core
         private MailBox(bool autoAck)
         {
             _autoAck = autoAck;
-            _subject = new Subject<BasicDeliverEventArgs>();
             _lock = new Object();
             _bagOfAckables = new List<ulong>();
+            _compositeDisposable = new CompositeDisposable();
+            _started = false;
         }
 
         public MailBox(SimpleEndpointArgs simpleEndpointArgs,
             MailboxArgs mailboxArgs,
-            bool autoAck = true): this(autoAck) 
+            bool autoAck = true) : this(autoAck)
         {
             Parameters = mailboxArgs;
             ConnectionUrl = simpleEndpointArgs.ConnectionUrl;
@@ -64,7 +65,6 @@ namespace AliceMQ.MailBox.Core
                 AutomaticRecoveryEnabled = simpleEndpointArgs.AutomaticRecoveryEnabled,
                 NetworkRecoveryInterval = simpleEndpointArgs.NetworkRecoveryInterval
             };
-            Start();
         }
 
         public MailBox(
@@ -85,50 +85,47 @@ namespace AliceMQ.MailBox.Core
             };
             ConnectionUrl =
                 $"amqp://{connParams.UserName}:{connParams.Password}@{connParams.HostName}:{connParams.Port}/{connParams.VirtualHost}";
-            Start();
         }
 
-        protected void Start()
+        private bool _started;
+
+        private IObservable<BasicDeliverEventArgs> PublicSequence()
         {
-            try
+            if (!_started)
             {
-                SetupConsumer();
-                SetupConsumerHandler();
+                SetupEnvironment();
+                _started = true;
+                _uniqueSequence = SourceSequence
+                    .Do(s =>
+                    {
+                        lock (_lock)
+                            _bagOfAckables.Add(s.DeliveryTag);
+                    })
+                    .Publish();
+                _uniqueSequence.Connect();
+                StartConsumer();
             }
-            catch (Exception ex)
-            {
-                throw new MailboxSetupException(ex);
-            }
+
+            return _uniqueSequence;
         }
 
-        private IDisposable InnerSubscribe(EventingBasicConsumer consumer)
+        protected virtual void StartConsumer()
         {
-            return
-                Observable
-                    .FromEventPattern<BasicDeliverEventArgs>(consumer,nameof(consumer.Received))
-                    .Select(e => e.EventArgs)
-                    .Buffer(TimeSpan.FromMilliseconds(200))
-                    .SelectMany(s => s)
-                    .Subscribe(OnNext, OnError, OnCompleted);
+            _channel.BasicConsume(QueueName, _autoAck, _consumer);
         }
 
-        protected void OnCompleted()
+        private IConnectableObservable<BasicDeliverEventArgs> _uniqueSequence;
+            
+
+        protected virtual IObservable<BasicDeliverEventArgs> SourceSequence =>
+        Observable.Defer(() =>
         {
-            _subject.OnCompleted();
-        }
-
-        protected void OnError(Exception e)
-        {
-            _subject.OnError(e);
-        }
-
-        protected void OnNext(BasicDeliverEventArgs a)
-        {
-            lock(_lock)
-                _bagOfAckables.Add(a.DeliveryTag);
-
-            _subject.OnNext(a);
-        }
+            _consumer = new EventingBasicConsumer(_channel);
+            return Observable
+                .FromEventPattern<BasicDeliverEventArgs>(_consumer, nameof(_consumer.Received))
+                .Select(e => e.EventArgs);
+        });
+            
 
         public virtual bool AckRequest(ulong deliveryTag, bool multiple)
         {
@@ -164,24 +161,24 @@ namespace AliceMQ.MailBox.Core
             return Confirmation(deliveryTag, d => _channel.BasicNack(d, multiple, requeue));
         }
 
-        protected virtual void SetupConsumerHandler()
+        protected virtual void SetupEnvironment()
         {
-            _consumer = new EventingBasicConsumer(_channel);
-            _subscription = InnerSubscribe(_consumer);
-            _channel.BasicConsume(QueueName, _autoAck, _consumer);
-        }
+            try
+            {
+                Channel();
 
-        protected virtual void SetupConsumer()
-        {
-            Channel();
+                if (DeadLettering)
+                    DeadLetterSetup();
 
-            if (DeadLettering)
-                DeadLetterSetup();
+                QueueDeclare();
 
-            QueueDeclare();
-
-            if (!DefaultExchange)
-                QueueBind();
+                if (!DefaultExchange)
+                    QueueBind();
+            }
+            catch (Exception ex)
+            {
+                throw new MailboxSetupException(ex);
+            }
         }
 
         private void QueueBind()
@@ -204,15 +201,17 @@ namespace AliceMQ.MailBox.Core
         private void Channel()
         {
             _connection = _factory.CreateConnection();
+            _compositeDisposable.Add(_connection);
             _channel = _connection.CreateModel();
+            _compositeDisposable.Add(_channel);
             _channel.BasicQos(0, Parameters.PrefetchCount, Parameters.Global);
-                //prefetchSize!=0 not implemented - https://www.rabbitmq.com/specification.html
+            //prefetchSize!=0 not implemented - https://www.rabbitmq.com/specification.html
         }
 
-        protected virtual void DeadLetterSetup()
+        private void DeadLetterSetup()
         {
-            _channel.ExchangeDeclare(DeadLetterExchangeName, 
-                Parameters.MailArgs.ExchangeType, 
+            _channel.ExchangeDeclare(DeadLetterExchangeName,
+                Parameters.MailArgs.ExchangeType,
                 Parameters.MailArgs.Durable);
 
             Parameters.QueueArguments.Add("x-dead-letter-exchange", DeadLetterExchangeName);
@@ -223,10 +222,7 @@ namespace AliceMQ.MailBox.Core
 
         public void Dispose()
         {
-            _subscription?.Dispose();
-            _connection?.Dispose();
-            _channel?.Dispose();
+            _compositeDisposable.Dispose();
         }
-
     }
 }

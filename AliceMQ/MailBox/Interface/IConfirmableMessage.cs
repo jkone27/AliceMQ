@@ -1,4 +1,4 @@
-namespace AliceMQ.MailBox.Message
+namespace AliceMQ.MailBox.Interface
 {
     public interface IConfirmableMessage
     {
