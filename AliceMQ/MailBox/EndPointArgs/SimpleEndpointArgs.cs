@@ -5,7 +5,7 @@ namespace AliceMQ.MailBox.EndPointArgs
     public class SimpleEndpointArgs: INetworkRecoveryInfo
     {
         public bool AutomaticRecoveryEnabled { get; }
-        public TimeSpan NetworkRecoveryInterval { get; }
+        public TimeSpan NetworkRecoveryInterval { get;}
 
         public string ConnectionUrl { get; }
 

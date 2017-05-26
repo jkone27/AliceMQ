@@ -186,6 +186,33 @@ namespace AliceMQ.Tests
         }
 
         [Fact]
+        public void ConfirmableMailbox_ReceiveMany_AcksThemAll()
+        {
+            var received = 0;
+            var ackRequested = 0;
+            var s = new TestScheduler();
+            var src = Observable
+                .Interval(TimeSpan.FromTicks(1), s)
+                .Select(z => NewArgs());
+
+            var mb = new FakeConsumer(src, false);
+            var custom = new CustomMailBox<string>(mb);
+            var c = new ConfirmableMailbox(custom);
+
+            c.Subscribe(m =>
+            {
+                received++;
+                m.AcksRequests.Subscribe(next => ackRequested++);
+                m.Accept();
+            });
+
+            s.AdvanceBy(20);
+            Assert.True(received == 20);
+            Assert.True(ackRequested == 20);
+            Assert.True(mb.Acks == 20);
+        }
+
+        [Fact]
         public void ConfirmableMailbox_ReceiveOne_andNack()
         {
             var received = false;

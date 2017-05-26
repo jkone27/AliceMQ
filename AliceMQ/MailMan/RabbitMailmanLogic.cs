@@ -12,21 +12,21 @@ namespace AliceMQ.MailMan
 {
     public abstract class RabbitMailmanLogic
     {
-        public string ExchangeName => _mailArgs.ExchangeName;
+        public string ExchangeName => _sourceArgs.ExchangeArgs.ExchangeName;
         public bool DefaultExchange => string.IsNullOrWhiteSpace(ExchangeName);
 
         protected readonly ConnectionFactory Factory;
-        private readonly MailArgs _mailArgs;
+        private readonly SourceArgs _sourceArgs;
         private readonly Formatting _formatting;
         private readonly JsonSerializerSettings _serializerSettings;
 
         protected RabbitMailmanLogic(
             EndpointArgs endpointArgs, 
-            MailArgs mailArgs,
+            SourceArgs sourceArgs,
             Formatting formatting = Formatting.None,
             JsonSerializerSettings serializerSettings = null)
         {
-            _mailArgs = mailArgs;
+            _sourceArgs = sourceArgs;
             _formatting = formatting;
             _serializerSettings = serializerSettings;
             Factory = new ConnectionFactory
@@ -43,11 +43,11 @@ namespace AliceMQ.MailMan
 
         protected RabbitMailmanLogic(
             SimpleEndpointArgs simpleEndpointArgs, 
-            MailArgs mailArgs, 
+            SourceArgs sourceArgs, 
             Formatting formatting = Formatting.None,
             JsonSerializerSettings serializerSettings = null)
         {
-            _mailArgs = mailArgs;
+            _sourceArgs = sourceArgs;
             _formatting = formatting;
             _serializerSettings = serializerSettings;
             Factory = new ConnectionFactory
@@ -65,10 +65,10 @@ namespace AliceMQ.MailMan
                 if (!DefaultExchange)
                     channel.ExchangeDeclare(
                         ExchangeName,
-                        _mailArgs.ExchangeType,
-                        _mailArgs.Durable,
-                        _mailArgs.AutoDelete,
-                        _mailArgs.ExchangeArguments);
+                        _sourceArgs.ExchangeArgs.ExchangeType,
+                        _sourceArgs.QueueArgs.Durable,
+                        _sourceArgs.QueueArgs.AutoDelete,
+                        _sourceArgs.ExchangeArgs.Properties);
 
                 return channel.CreateBasicProperties();
             }

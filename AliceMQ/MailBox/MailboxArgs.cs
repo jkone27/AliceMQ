@@ -5,31 +5,29 @@ namespace AliceMQ.MailBox
 {
     public class MailboxArgs
     {
-        public string RoutingKey { get; private set; }
-        public string DeadLetterExchangeName { get; private set; }
-        public ushort PrefetchCount { get; private set; }
-        public bool Global { get; private set; }
-        public IDictionary<string, object> QueueBindArguments { get; set; } //must be settable at runtime
-        public IDictionary<string, object> QueueArguments { get; set; } //must be settable at runtime
-        public MailArgs MailArgs { get; private set; }
+        public string DeadLetterExchangeName { get; set; } //must be settable at runtime
+        public IDictionary<string, object> QueueDeclareArguments { get; set; } //must be settable at runtime
+        public SourceArgs Source { get; set; }
+        public BasicQualityOfService BasicQualityOfService { get; }
+
+        public QueueBind QueueBind { get; }
 
         public MailboxArgs(
-            MailArgs mailArgs, 
+            SourceArgs sourceArgs, 
             string routingKey = "",
             string deadLetterExchangeName = null,
-            IDictionary<string, object> queueArguments = null,
+            IDictionary<string, object> queueDeclareArguments = null,
             IDictionary<string, object> queueBindArguments = null,
             ushort prefetchCount = 1,
             bool global = false)
         {
-            QueueArguments = queueArguments ?? new Dictionary<string, object>();
-            QueueBindArguments = queueBindArguments ?? new Dictionary<string, object>();
-            MailArgs = mailArgs;
-            RoutingKey = routingKey;
+            QueueDeclareArguments = queueDeclareArguments ?? new Dictionary<string, object>();
+            QueueBind = new QueueBind(queueBindArguments ?? new Dictionary<string, object>(), routingKey);
+            Source = sourceArgs;
             DeadLetterExchangeName = deadLetterExchangeName;
-            PrefetchCount = prefetchCount;
-            Global = global;
+            BasicQualityOfService = new BasicQualityOfService(prefetchCount, global);
         }
 
+        
     }
 }

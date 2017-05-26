@@ -25,15 +25,16 @@ namespace SampleApplication
         static void Main(string[] args)
         {
             var endpointArgs = new EndpointArgs();
-            var mailArgs = new MailArgs("A", "A.q");
+            var sourceArgs = new SourceArgs("A", "A.q");
 
-            var mailboxArgs = new MailboxArgs(mailArgs);
+            var mailboxArgs = new MailboxArgs(sourceArgs);
+
             var serialization = new JsonSerializerSettings
             {
                 MissingMemberHandling = MissingMemberHandling.Ignore,
                 ContractResolver = new FromPascalToJsContractResolver()
             };
-            var p = new Mailman(mailArgs, endpointArgs, formatting: Formatting.Indented, jsonSerializerSettings: serialization);
+            var p = new Mailman(sourceArgs, endpointArgs, formatting: Formatting.Indented, jsonSerializerSettings: serialization);
             //first message published creates exchange if non existent
             p.PublishOne(new Msg(-1),"");
 

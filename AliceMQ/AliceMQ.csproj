@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExtensionMethods\MessageExtensions.cs" />
+    <Compile Include="MailBox\BasicQualityOfService.cs" />
     <Compile Include="MailBox\EndPointArgs\INetworkRecoveryInfo.cs" />
     <Compile Include="MailBox\Message\Failure.cs" />
     <Compile Include="MailBox\Interface\IResult.cs" />
@@ -72,16 +73,19 @@
     <Compile Include="MailBox\Message\Ok.cs" />
     <Compile Include="MailBox\EndPointArgs\SimpleEndpointArgs.cs" />
     <Compile Include="ExtensionMethods\ExceptionExtensions.cs" />
+    <Compile Include="MailBox\QueueBind.cs" />
+    <Compile Include="MailMan\ExchangeArgs.cs" />
     <Compile Include="MailMan\Interface\IBasicPropertiesSetter.cs" />
     <Compile Include="MailMan\Interface\IMailman.cs" />
     <Compile Include="MailMan\Interface\IMessageProperty.cs" />
     <Compile Include="MailMan\MessageProperty.cs" />
     <Compile Include="MailMan\NoSetter.cs" />
     <Compile Include="MailMan\MailmanSetupException.cs" />
+    <Compile Include="MailMan\QueueArgs.cs" />
     <Compile Include="MailMan\RabbitMailmanLogic.cs" />
     <Compile Include="MailMan\Mailman.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="MailMan\MailArgs.cs" />
+    <Compile Include="MailMan\SourceArgs.cs" />
     <Compile Include="Serialize\FromPascalToJsContractResolver.cs" />
     <Compile Include="Serialize\JsonPropertyNameSetterExtension.cs" />
   </ItemGroup>

@@ -17,14 +17,14 @@ namespace AliceMQ.MailMan
         private readonly Action<Exception> _publishErrorAction;
 
         public Mailman(
-            MailArgs mailArgs, 
+            SourceArgs sourceArgs, 
             EndpointArgs endpointArgs,
             Action<Exception> publishErrorAction = null,
             IStaticPropertiesSetter staticPropertiesSetter = null,
             Formatting formatting = Formatting.None,
             JsonSerializerSettings jsonSerializerSettings = null
         )
-            : base(endpointArgs, mailArgs, formatting, jsonSerializerSettings)
+            : base(endpointArgs, sourceArgs, formatting, jsonSerializerSettings)
         {
             _staticPropertiesSetter = staticPropertiesSetter ?? new NoSetter();
             _publishErrorAction = publishErrorAction ?? (p => { });
@@ -32,13 +32,13 @@ namespace AliceMQ.MailMan
 
         public Mailman( 
             SimpleEndpointArgs simpleEndpointArgs, 
-            MailArgs mailArgs,
+            SourceArgs sourceArgs,
             Action<Exception> publishErrorAction = null,
             IStaticPropertiesSetter staticPropertiesSetter = null,
             Formatting formatting = Formatting.None,
             JsonSerializerSettings jsonSerializerSettings = null
             )
-            : base(simpleEndpointArgs, mailArgs, formatting, jsonSerializerSettings)
+            : base(simpleEndpointArgs, sourceArgs, formatting, jsonSerializerSettings)
         {
             _staticPropertiesSetter = staticPropertiesSetter;
             _publishErrorAction = publishErrorAction ?? (p => { });
