@@ -64,7 +64,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FakeConsumer.cs" />
+    <Compile Include="FakeAutoMailbox.cs" />
+    <Compile Include="FakeMailbox.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MailboxTest.cs" />
   </ItemGroup>

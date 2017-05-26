@@ -1,18 +1,14 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using AliceMQ.MailBox.EndPointArgs;
-using AliceMQ.MailBox.Interface;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-namespace AliceMQ.MailBox.Core
+namespace AliceMQ.MailBox.Core.Simple
 {
-    public class MailBox
-        : IMailBox<BasicDeliverEventArgs>, IDisposable
+    public abstract class MailBoxBase
     {
         public string ConnectionUrl { get; private set; }
         public string QueueName => Parameters.Source.QueueArgs.QueueName;
@@ -23,39 +19,34 @@ namespace AliceMQ.MailBox.Core
 
         private readonly IConnectionFactory _factory;
         private IConnection _connection;
-        private IModel _channel;
-        private readonly List<ulong> _bagOfAckables;
-        private readonly object _lock;
+        protected IModel _channel;
         private readonly CompositeDisposable _compositeDisposable;
 
 
         public IDisposable Subscribe(IObserver<BasicDeliverEventArgs> observer)
         {
-            return PublicSequence().Subscribe(observer);
+            return PrivateSequence().Subscribe(observer);
         }
 
         public readonly MailboxArgs Parameters;
         private readonly bool _autoAck;
         private EventingBasicConsumer _consumer;
-
-        public bool IsConfirmable => !_autoAck;
+        private IConnectableObservable<BasicDeliverEventArgs> _privateConnectableSequence;
 
         public bool DefaultExchange => string.IsNullOrWhiteSpace(ExchangeName);
 
         public bool DeadLettering => !string.IsNullOrWhiteSpace(DeadLetterExchangeName);
 
-        private MailBox(bool autoAck)
+        private MailBoxBase(bool autoAck)
         {
             _autoAck = autoAck;
-            _lock = new Object();
-            _bagOfAckables = new List<ulong>();
             _compositeDisposable = new CompositeDisposable();
-            _started = false;
+            _privateConnectableSequence = null;
         }
 
-        public MailBox(SimpleEndpointArgs simpleEndpointArgs,
+        protected MailBoxBase(SimpleEndpointArgs simpleEndpointArgs,
             MailboxArgs mailboxArgs,
-            bool autoAck = true) : this(autoAck)
+            bool autoAck) : this(autoAck)
         {
             Parameters = mailboxArgs;
             ConnectionUrl = simpleEndpointArgs.ConnectionUrl;
@@ -67,10 +58,10 @@ namespace AliceMQ.MailBox.Core
             };
         }
 
-        public MailBox(
+        protected MailBoxBase(
             EndpointArgs connParams,
             MailboxArgs mailboxArgs,
-            bool autoAck = true) : this(autoAck)
+            bool autoAck) : this(autoAck)
         {
             Parameters = mailboxArgs;
             _factory = new ConnectionFactory
@@ -87,79 +78,33 @@ namespace AliceMQ.MailBox.Core
                 $"amqp://{connParams.UserName}:{connParams.Password}@{connParams.HostName}:{connParams.Port}/{connParams.VirtualHost}";
         }
 
-        private bool _started;
 
-        private IObservable<BasicDeliverEventArgs> PublicSequence()
+        private IConnectableObservable<BasicDeliverEventArgs> PrivateSequence()
         {
-            if (!_started)
+            if (_privateConnectableSequence == null)
             {
                 SetupEnvironment();
-                _started = true;
-                _uniqueSequence = SourceSequence
-                    .Do(s =>
-                    {
-                        lock (_lock)
-                            _bagOfAckables.Add(s.DeliveryTag);
-                    })
-                    .Publish();
-                _uniqueSequence.Connect();
-                StartConsumer();
+                _consumer = new EventingBasicConsumer(_channel);
+
+                _privateConnectableSequence =
+                    ConsumerReceivedObservable
+                        .Do(PrivateSequenceAction)
+                        .Publish();
             }
-
-            return _uniqueSequence;
+            return _privateConnectableSequence;
         }
 
-        protected virtual void StartConsumer()
+        protected virtual void PrivateSequenceAction(BasicDeliverEventArgs s)
         {
+            //
+        }
+
+        protected virtual void StartConsumer() =>
             _channel.BasicConsume(Parameters.Source.QueueArgs.QueueName, _autoAck, _consumer);
-        }
 
-        private IConnectableObservable<BasicDeliverEventArgs> _uniqueSequence;
+        protected virtual IObservable<BasicDeliverEventArgs> ConsumerReceivedObservable =>
+            Observable.FromEventPattern<BasicDeliverEventArgs>(_consumer, nameof(_consumer.Received)).Select(e => e.EventArgs);
             
-
-        protected virtual IObservable<BasicDeliverEventArgs> SourceSequence =>
-        Observable.Defer(() =>
-        {
-            _consumer = new EventingBasicConsumer(_channel);
-            return Observable
-                .FromEventPattern<BasicDeliverEventArgs>(_consumer, nameof(_consumer.Received))
-                .Select(e => e.EventArgs);
-        });
-            
-
-        public virtual bool AckRequest(ulong deliveryTag, bool multiple)
-        {
-            return Confirmation(deliveryTag, d => _channel.BasicAck(d, multiple));
-        }
-
-        private bool Confirmation(ulong deliveryTag, Action<ulong> action)
-        {
-            ThrowIfNonAckable();
-            lock (_lock)
-                if (IsConfirmable && _bagOfAckables.Any(a => a == deliveryTag))
-                {
-                    return ConfirmationAction(deliveryTag, action);
-                }
-            return IsConfirmable;
-        }
-
-        private bool ConfirmationAction(ulong deliveryTag, Action<ulong> action)
-        {
-            action(deliveryTag);
-            _bagOfAckables.Remove(deliveryTag);
-            return true;
-        }
-
-        private void ThrowIfNonAckable()
-        {
-            if (!IsConfirmable)
-                throw new MailboxException("acknowledge not supported");
-        }
-
-        public virtual bool NackRequest(ulong deliveryTag, bool multiple, bool requeue)
-        {
-            return Confirmation(deliveryTag, d => _channel.BasicNack(d, multiple, requeue));
-        }
 
         protected virtual void SetupEnvironment()
         {
@@ -223,6 +168,13 @@ namespace AliceMQ.MailBox.Core
         public void Dispose()
         {
             _compositeDisposable.Dispose();
+        }
+
+        public IDisposable Connect()
+        {
+            var connection = _privateConnectableSequence.Connect();
+            StartConsumer();
+            return connection;
         }
     }
 }

@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using AliceMQ.ExtensionMethods;
 using AliceMQ.MailBox;
 using AliceMQ.MailBox.Core;
+using AliceMQ.MailBox.Core.Custom;
+using AliceMQ.MailBox.Core.Simple;
 using AliceMQ.MailBox.EndPointArgs;
 using AliceMQ.MailMan;
 using AliceMQ.Serialize;
@@ -38,7 +40,7 @@ namespace SampleApplication
             //first message published creates exchange if non existent
             p.PublishOne(new Msg(-1),"");
 
-            var mb = new MailBox(endpointArgs, mailboxArgs, false);
+            var mb = new MailBox(endpointArgs, mailboxArgs);
 
             var custom = new CustomMailBox<Msg>(mb, serialization);
             var confirmable = new ConfirmableMailbox(custom);
@@ -80,6 +82,8 @@ namespace SampleApplication
                 }
                
             });
+
+            confirmable.Connect();
 
             var exit = ConsoleKey.N;
             var count = 0;

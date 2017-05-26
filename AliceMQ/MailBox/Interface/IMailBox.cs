@@ -1,13 +1,22 @@
 ﻿using System;
+using System.Reactive.Subjects;
 
 namespace AliceMQ.MailBox.Interface
 {
-    public interface IMailBox<out T> : IObservable<T>, IAckableConsumer
+    
+    public interface IConfirmableMailBox<out T> : IConnectableObservable<T>, IDisposable
     {
-        bool IsConfirmable { get; }
     }
 
-    public interface ISafeObservable<out T> : IObservable<IResult<T>>
+    public interface IMailBox<out T> : IConnectableObservable<T>, IDisposable
+    {
+    }
+
+    public interface IAckableMailbox<out T> : IMailBox<T>, IAckableConsumer
+    {
+    }
+
+    public interface IAutoMailBox<out T> : IMailBox<T>
     {
     }
 }

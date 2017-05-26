@@ -6,17 +6,17 @@ using AliceMQ.MailBox.Message;
 using Newtonsoft.Json;
 using RabbitMQ.Client.Events;
 
-namespace AliceMQ.MailBox.Core
+namespace AliceMQ.MailBox.Core.Custom
 {
-    public class CustomMailBox<T>: 
+    public abstract class CustomMailBoxBase<T>:
         IMailBox<IMessage>
     {
         private readonly JsonSerializerSettings _jsonSerializerSettings;
-        private readonly IMailBox<BasicDeliverEventArgs> _mailBox;
+        protected readonly IMailBox<BasicDeliverEventArgs> _mailBox;
 
         public bool IgnoreMissingJsonFields => _jsonSerializerSettings.MissingMemberHandling == MissingMemberHandling.Ignore;
 
-        public CustomMailBox(IMailBox<BasicDeliverEventArgs> mailbox, 
+        protected CustomMailBoxBase(IMailBox<BasicDeliverEventArgs> mailbox, 
             JsonSerializerSettings jsonSeralizerSettings = null)
         {
             _mailBox = mailbox;
@@ -52,19 +52,13 @@ namespace AliceMQ.MailBox.Core
             return e.BasicProperties.GetEncoding().GetString(e.Body);
         }
 
-        public bool AckRequest(ulong deliveryTag, bool multiple)
-        {
-            return _mailBox.AckRequest(deliveryTag, multiple);
-        }
-
-        public bool NackRequest(ulong deliveryTag, bool multiple, bool requeue)
-        {
-            return _mailBox.NackRequest(deliveryTag, multiple, requeue);
-        }
-
-        public bool IsConfirmable => _mailBox.IsConfirmable;
-
         public IDisposable Subscribe(IObserver<IMessage> observer) =>
             _mailBox.Select(ConsumeMessage).AsObservable().Subscribe(observer);
+
+        public IDisposable Connect() => _mailBox.Connect();
+        public void Dispose()
+        {
+            _mailBox.Dispose();
+        }
     }
 }

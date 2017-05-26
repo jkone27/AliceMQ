@@ -45,6 +45,10 @@
   <ItemGroup>
     <Compile Include="ExtensionMethods\MessageExtensions.cs" />
     <Compile Include="MailBox\BasicQualityOfService.cs" />
+    <Compile Include="MailBox\Core\Custom\AutoCustomMailBox.cs" />
+    <Compile Include="MailBox\Core\Simple\AutoMailBox.cs" />
+    <Compile Include="MailBox\Core\Custom\CustomMailBoxBase.cs" />
+    <Compile Include="MailBox\Core\Simple\MailBoxBase.cs" />
     <Compile Include="MailBox\EndPointArgs\INetworkRecoveryInfo.cs" />
     <Compile Include="MailBox\Message\Failure.cs" />
     <Compile Include="MailBox\Interface\IResult.cs" />
@@ -63,8 +67,8 @@
     <Compile Include="MailBox\MailboxArgs.cs" />
     <Compile Include="MailBox\EndPointArgs\EndpointArgs.cs" />
     <Compile Include="MailBox\Core\ConfirmableMailbox.cs" />
-    <Compile Include="MailBox\Core\MailBox.cs" />
-    <Compile Include="MailBox\Core\CustomMailBox.cs" />
+    <Compile Include="MailBox\Core\Simple\MailBox.cs" />
+    <Compile Include="MailBox\Core\Custom\CustomMailBox.cs" />
     <Compile Include="MailBox\DeliveryArgs\DeliveryArgs.cs" />
     <Compile Include="MailBox\ManualAckEventArgs.cs" />
     <Compile Include="MailBox\Message\ConfirmableEnvelope.cs" />
@@ -94,6 +98,7 @@
     <None Include="app.config" />
     <None Include="paket.references" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3')">

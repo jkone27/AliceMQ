@@ -6,17 +6,15 @@ using AliceMQ.MailBox.Message;
 
 namespace AliceMQ.MailBox.Core
 {
-    public class ConfirmableMailbox : 
-        IObservable<ConfirmableEnvelope>
+    public class ConfirmableMailbox :
+        IConfirmableMailBox<ConfirmableEnvelope>
     {
-        private readonly IMailBox<IMessage> _customMailBox;
+        private readonly IAckableMailbox<IMessage> _customMailBox;
 
         public ConfirmableMailbox(
-            IMailBox<IMessage> customMailBox)
+            IAckableMailbox<IMessage> customMailBox)
         {
             _customMailBox = customMailBox;
-            if(!_customMailBox.IsConfirmable)
-                throw new MailboxException("non ackable consumer");
         }
 
         private void OnNextAck(AcceptDeliveryArgs a, IConfirmableDelivery m)
@@ -42,6 +40,13 @@ namespace AliceMQ.MailBox.Core
                 })
                 .AsObservable()
                 .Subscribe(observer);
+        }
+
+        public IDisposable Connect() => _customMailBox.Connect();
+
+        public void Dispose()
+        {
+            _customMailBox.Dispose();
         }
     }
 }

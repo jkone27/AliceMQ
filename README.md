@@ -4,6 +4,8 @@
 
 An easy to use frontend for MQ system (now supporting RabbitMq only, but would be nice to extend to other systems) using Reactive Extensions and a Publish/Subscribe paradigm.
 
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/jkone27/AliceMQ/issues)
+
 ## Mailman (Producer)
 
 Usage of a mailman is dead simple:
@@ -58,13 +60,9 @@ var custom = new CustomMailBox<Msg>(mb, serialization);
 custom.Subscribe(am =>
 {
     if (am.IsOk<Msg>())
-    {
         Console.WriteLine("ok - " + am.AsOk<Msg>().Message.Bla);
-    }
     else
-    {
         Console.WriteLine("error - " + am.AsError().Ex);
-    }
 });
 ```
 
@@ -108,70 +106,63 @@ public interface IConfirmableMessage
 
 Both Mailman and Mailbox need that you provide some basic parameters for configuring the Endpoint, the Source (namely Exchange and Queue), and the Mailbox (with more sofisticated configurations).
 
-#### EndpointArgs
+### EndpointArgs
 
 ```cs
-
-public string HostName { get; }
-public int Port { get; }
-public string UserName { get; }
-public string Password { get; }
-public string VirtualHost { get; }
-public bool AutomaticRecoveryEnabled { get;}
-public TimeSpan NetworkRecoveryInterval { get;  }
+string HostName
+int Port
+string UserName
+string Password
+string VirtualHost
+bool AutomaticRecoveryEnabled
+TimeSpan NetworkRecoveryInterval
 ```
 
-#### SourceArgs
+### SourceArgs
 
 ```cs
-public ExchangeArgs ExchangeArgs { get; }
-public QueueArgs QueueArgs { get; }
+ExchangeArgs ExchangeArgs
+QueueArgs QueueArgs
 ```
 
-#### ExchangeArgs
-
-```cs 
-public string ExchangeName { get; set; }
-public string ExchangeType { get; set; }
-public bool Durable { get; set; }
-public IDictionary<string, object> Properties { get; set; }
-```
-
-#### QueueArgs
+### ExchangeArgs
 
 ```cs
-public string QueueName { get; }
-public bool Durable { get; }
-public bool Exclusive { get; }
-public bool AutoDelete { get; }
+string ExchangeName
+string ExchangeType
+bool Durable
+IDictionary<string, object> Properties
 ```
 
-#### MailboxArgs
+### QueueArgs
 
 ```cs
-public string DeadLetterExchangeName { get; set; }
-public IDictionary<string, object> QueueDeclareArguments { get; set; } //must be settable at runtime
-public SourceArgs Source { get; set; }
-public BasicQualityOfService BasicQualityOfService { get; }
-public QueueBind QueueBind { get; }
+string QueueName
+bool Durable
+bool Exclusive
+bool AutoDelete
 ```
 
-#### QueueBind
+### MailboxArgs
 
 ```cs
-public string RoutingKey { get; }
-public IDictionary<string, object> Arguments { get; }
+string DeadLetterExchangeName
+IDictionary<string, object> QueueDeclareArguments
+SourceArgs Source
+BasicQualityOfService BasicQualityOfService
+QueueBind QueueBind
 ```
 
-#### BasicQualityOfService
+### QueueBind
 
 ```cs
-public ushort PrefetchCount { get; set; }
-public bool Global { get; set; }
+string RoutingKey
+IDictionary<string, object> Arguments
 ```
 
-## TODO
+### BasicQualityOfService
 
-- ~~Fluent Builder / Factory Interface for MailBox and Mailman (abandoned)~~
-- Write more documentation for configuration classes (MailArgs, and MailBoxArgs)
-- More Exaustive names
+```cs
+ushort PrefetchCount
+bool Global
+```

@@ -4,15 +4,15 @@ using RabbitMQ.Client.Events;
 
 namespace AliceMQ.Tests
 {
-    public class FakeConsumer : MailBox.Core.MailBox
+    public class FakeMailbox : MailBox.Core.Simple.MailBox
     {
         public int Acks { get; private set; }
         public int Nacks { get; private set; }
 
         public IObservable<BasicDeliverEventArgs> Source;
 
-        public FakeConsumer(IObservable<BasicDeliverEventArgs> source, bool autoAck) 
-            : base(new EndpointArgs(), null, autoAck)
+        public FakeMailbox(IObservable<BasicDeliverEventArgs> source) 
+            : base(new EndpointArgs(), null)
         {
             Source = source;
             Acks = 0;
@@ -31,7 +31,7 @@ namespace AliceMQ.Tests
             return true;
         }
 
-        protected override IObservable<BasicDeliverEventArgs> SourceSequence => Source;
+        protected override IObservable<BasicDeliverEventArgs> ConsumerReceivedObservable => Source;
 
         protected override void StartConsumer()
         {
