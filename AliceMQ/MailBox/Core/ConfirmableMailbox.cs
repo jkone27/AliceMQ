@@ -6,8 +6,8 @@ using AliceMQ.MailBox.Message;
 
 namespace AliceMQ.MailBox.Core
 {
-    public class ConfirmableMailbox :
-        IConfirmableMailBox<ConfirmableEnvelope>
+    public class ConfirmableMailbox<T> :
+        IConfirmableMailBox<IConfirmableEnvelope<T>>
     {
         private readonly IAckableMailbox<IMessage> _customMailBox;
 
@@ -29,10 +29,10 @@ namespace AliceMQ.MailBox.Core
             m.ConfirmDelivery();
         }
 
-        public IDisposable Subscribe(IObserver<ConfirmableEnvelope> observer)
+        public IDisposable Subscribe(IObserver<IConfirmableEnvelope<T>> observer)
         {
             return _customMailBox
-                .Select(s => new ConfirmableEnvelope(s))
+                .Select(s => new ConfirmableEnvelope<T>(s))
                 .Do(s =>
                 {
                     s.AcksRequests.Subscribe(n => OnNextAck(n, s));

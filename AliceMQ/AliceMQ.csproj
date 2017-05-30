@@ -52,6 +52,7 @@
     <Compile Include="MailBox\EndPointArgs\INetworkRecoveryInfo.cs" />
     <Compile Include="MailBox\Message\Failure.cs" />
     <Compile Include="MailBox\Interface\IResult.cs" />
+    <Compile Include="MailBox\Interface\IConfirmableEnvelope.cs" />
     <Compile Include="MailBox\Message\Success.cs" />
     <Compile Include="MailBox\MailboxException.cs" />
     <Compile Include="MailBox\MailboxSetupException.cs" />

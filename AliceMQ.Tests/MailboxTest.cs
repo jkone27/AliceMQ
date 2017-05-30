@@ -2,10 +2,8 @@
 using System.Reactive.Linq;
 using System.Text;
 using AliceMQ.ExtensionMethods;
-using AliceMQ.MailBox;
 using AliceMQ.MailBox.Core;
 using AliceMQ.MailBox.Core.Custom;
-using AliceMQ.MailBox.Interface;
 using RabbitMQ.Client.Events;
 using Microsoft.Reactive.Testing;
 using Moq;
@@ -128,15 +126,15 @@ namespace AliceMQ.Tests
 
             var mb = new FakeMailbox(src);
             var c = new CustomMailBox<TestMessage>(mb);
-            var conf = new ConfirmableMailbox(c);
+            var conf = new ConfirmableMailbox<TestMessage>(c);
 
             conf.Subscribe(m =>
                 {
-                    if(m.Content.IsOk<TestMessage>())
+                    if(m.IsOk())
                         received = true;
                     else
                     {
-                        ex = m.Content.AsError().Ex;
+                        ex = m.Exception();
                     }
                 });
             conf.Connect();
@@ -151,7 +149,6 @@ namespace AliceMQ.Tests
         public void ConfirmableMailbox_ReceiveOne_andAck()
         {
             var received = false;
-            bool ackRequested = false;
             var s = new TestScheduler();
             var src = Observable
                 .Interval(TimeSpan.FromTicks(1), s)
@@ -159,18 +156,16 @@ namespace AliceMQ.Tests
 
             var mb = new FakeMailbox(src);
             var custom = new CustomMailBox<string>(mb);
-            var c = new ConfirmableMailbox(custom);
+            var c = new ConfirmableMailbox<TestMessage>(custom);
 
             c.Subscribe(m =>
                 { received = true;
-                    m.AcksRequests.Subscribe(next => ackRequested = true);
                     m.Accept();
                 });
 
             c.Connect();
             s.AdvanceBy(1);
             Assert.True(received);
-            Assert.True(ackRequested);
             Assert.True(mb.Acks == 1);
         }
 
@@ -178,7 +173,6 @@ namespace AliceMQ.Tests
         public void ConfirmableMailbox_ReceiveMany_AcksThemAll()
         {
             var received = 0;
-            var ackRequested = 0;
             var s = new TestScheduler();
             var src = Observable
                 .Interval(TimeSpan.FromTicks(1), s)
@@ -186,19 +180,17 @@ namespace AliceMQ.Tests
 
             var mb = new FakeMailbox(src);
             var custom = new CustomMailBox<string>(mb);
-            var c = new ConfirmableMailbox(custom);
+            var c = new ConfirmableMailbox<TestMessage>(custom);
 
             c.Subscribe(m =>
             {
                 received++;
-                m.AcksRequests.Subscribe(next => ackRequested++);
                 m.Accept();
             });
 
             c.Connect();
             s.AdvanceBy(20);
             Assert.True(received == 20);
-            Assert.True(ackRequested == 20);
             Assert.True(mb.Acks == 20);
         }
 
@@ -206,7 +198,6 @@ namespace AliceMQ.Tests
         public void ConfirmableMailbox_ReceiveOne_andNack()
         {
             var received = false;
-            bool nackRequested = false;
             var s = new TestScheduler();
             var src = Observable
                 .Interval(TimeSpan.FromTicks(1), s)
@@ -214,19 +205,17 @@ namespace AliceMQ.Tests
 
             var mb = new FakeMailbox(src);
             var typed = new CustomMailBox<string>(mb);
-            var c = new ConfirmableMailbox(typed);
+            var c = new ConfirmableMailbox<TestMessage>(typed);
 
             c.Subscribe(m =>
             {
                 received = true;
-                m.NacksRequests.Subscribe(next => nackRequested = true);
                 m.Reject();
             });
             c.Connect();
 
             s.AdvanceBy(1);
             Assert.True(received);
-            Assert.True(nackRequested);
             Assert.True(mb.Nacks == 1);
         }
 
@@ -239,8 +228,6 @@ namespace AliceMQ.Tests
         {
             var received = false;
             var exception = false;
-            var nackRequested = false;
-            var ackRequested = false;
             var s = new TestScheduler();
             var src = Observable
                 .Interval(TimeSpan.FromTicks(1), s)
@@ -248,13 +235,11 @@ namespace AliceMQ.Tests
 
             var mb = new FakeMailbox(src);
             var typed = new CustomMailBox<TestMessage>(mb);
-            var c = new ConfirmableMailbox(typed);
+            var c = new ConfirmableMailbox<TestMessage>(typed);
 
             c.Subscribe(m =>
             {
-                m.NacksRequests.Subscribe(next => nackRequested = true);
-                m.AcksRequests.Subscribe(next => ackRequested = true);
-                if (m.Content.IsOk<TestMessage>())
+                if (m.IsOk())
                 {
                     received = true;
                     m.Accept();
@@ -273,7 +258,7 @@ namespace AliceMQ.Tests
             s.AdvanceBy(1);
             Assert.False(received);
             Assert.True(exception);
-            Assert.True((acks && ackRequested  && mb.Acks == 1) || (!acks && nackRequested && mb.Nacks == 1));
+            Assert.True((acks  && mb.Acks == 1) || (!acks && mb.Nacks == 1));
         }
     }
 

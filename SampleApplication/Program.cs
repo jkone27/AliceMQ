@@ -43,7 +43,7 @@ namespace SampleApplication
             var mb = new MailBox(endpointArgs, mailboxArgs);
 
             var custom = new CustomMailBox<Msg>(mb, serialization);
-            var confirmable = new ConfirmableMailbox(custom);
+            var confirmable = new ConfirmableMailbox<Msg>(custom);
 
             Task.Run(() => Console.WriteLine("waiting for messages.."));
 
@@ -70,14 +70,14 @@ namespace SampleApplication
 
             confirmable.Subscribe(am =>
             {
-                if (am.Content.IsOk<Msg>())
+                if (am.IsOk())
                 {
-                    Console.WriteLine("C - " + am.Content.AsOk<Msg>().Message?.Bla);
+                    Console.WriteLine("C - " + am.Content().Bla);
                     am.Accept();
                 }
                 else
                 {
-                    Console.WriteLine("C - error." + am.Content.AsError().Ex);
+                    Console.WriteLine("C - error." + am.Exception());
                     am.Reject();
                 }
                
