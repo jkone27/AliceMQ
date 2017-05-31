@@ -15,12 +15,12 @@ namespace AliceMQ.MailBox.Core.Custom
 
         public bool AckRequest(ulong deliveryTag, bool multiple)
         {
-            return ((IAckableMailbox<BasicDeliverEventArgs>) _mailBox).AckRequest(deliveryTag, multiple);
+            return ((IAckableMailbox<BasicDeliverEventArgs>) MailBox).AckRequest(deliveryTag, multiple);
         }
 
         public bool NackRequest(ulong deliveryTag, bool multiple, bool requeue)
         {
-            return ((IAckableMailbox<BasicDeliverEventArgs>) _mailBox).NackRequest(deliveryTag, multiple, requeue);
+            return ((IAckableMailbox<BasicDeliverEventArgs>) MailBox).NackRequest(deliveryTag, multiple, requeue);
         }
     }
 }

@@ -83,7 +83,7 @@ namespace SampleApplication
                
             });
 
-            confirmable.Connect();
+            var d = confirmable.Connect();
 
             var exit = ConsoleKey.N;
             var count = 0;
@@ -93,6 +93,9 @@ namespace SampleApplication
                 p.PublishOne("{ wrong message }", ""); //publish a broken message to test exception handling
                 exit = Console.ReadKey().Key;
             }
+
+            confirmable.Dispose();
+            d.Dispose();
         }
     }
 }

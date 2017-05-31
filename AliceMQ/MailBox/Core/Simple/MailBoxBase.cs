@@ -8,7 +8,7 @@ using RabbitMQ.Client.Events;
 
 namespace AliceMQ.MailBox.Core.Simple
 {
-    public abstract class MailBoxBase
+    public abstract class MailBoxBase: IDisposable
     {
         public string ConnectionUrl { get; private set; }
         public string QueueName => Parameters.Source.QueueArgs.QueueName;
@@ -19,7 +19,7 @@ namespace AliceMQ.MailBox.Core.Simple
 
         private readonly IConnectionFactory _factory;
         private IConnection _connection;
-        protected IModel _channel;
+        protected IModel Channel;
         private readonly CompositeDisposable _compositeDisposable;
 
 
@@ -84,7 +84,7 @@ namespace AliceMQ.MailBox.Core.Simple
             if (_privateConnectableSequence == null)
             {
                 SetupEnvironment();
-                _consumer = new EventingBasicConsumer(_channel);
+                _consumer = new EventingBasicConsumer(Channel);
 
                 _privateConnectableSequence =
                     ConsumerReceivedObservable
@@ -100,7 +100,7 @@ namespace AliceMQ.MailBox.Core.Simple
         }
 
         protected virtual void StartConsumer() =>
-            _channel.BasicConsume(Parameters.Source.QueueArgs.QueueName, _autoAck, _consumer);
+            Channel.BasicConsume(Parameters.Source.QueueArgs.QueueName, _autoAck, _consumer);
 
         protected virtual IObservable<BasicDeliverEventArgs> ConsumerReceivedObservable =>
             Observable.FromEventPattern<BasicDeliverEventArgs>(_consumer, nameof(_consumer.Received)).Select(e => e.EventArgs);
@@ -110,7 +110,7 @@ namespace AliceMQ.MailBox.Core.Simple
         {
             try
             {
-                Channel();
+                ChannelSetup();
 
                 if (DeadLettering)
                     DeadLetterSetup();
@@ -128,7 +128,7 @@ namespace AliceMQ.MailBox.Core.Simple
 
         private void QueueBind()
         {
-            _channel.QueueBind(Parameters.Source.QueueArgs.QueueName,
+            Channel.QueueBind(Parameters.Source.QueueArgs.QueueName,
                 Parameters.Source.ExchangeArgs.ExchangeName,
                 Parameters.QueueBind.RoutingKey,
                 Parameters.QueueBind.Arguments);
@@ -136,26 +136,26 @@ namespace AliceMQ.MailBox.Core.Simple
 
         private void QueueDeclare()
         {
-            _channel.QueueDeclare(Parameters.Source.QueueArgs.QueueName,
+            Channel.QueueDeclare(Parameters.Source.QueueArgs.QueueName,
                 Parameters.Source.QueueArgs.Durable,
                 Parameters.Source.QueueArgs.Exclusive,
                 Parameters.Source.QueueArgs.AutoDelete,
                 Parameters.QueueDeclareArguments);
         }
 
-        private void Channel()
+        private void ChannelSetup()
         {
             _connection = _factory.CreateConnection();
             _compositeDisposable.Add(_connection);
-            _channel = _connection.CreateModel();
-            _compositeDisposable.Add(_channel);
-            _channel.BasicQos(0, Parameters.BasicQualityOfService.PrefetchCount, Parameters.BasicQualityOfService.Global);
+            Channel = _connection.CreateModel();
+            _compositeDisposable.Add(Channel);
+            Channel.BasicQos(0, Parameters.BasicQualityOfService.PrefetchCount, Parameters.BasicQualityOfService.Global);
             //prefetchSize!=0 not implemented - https://www.rabbitmq.com/specification.html
         }
 
         private void DeadLetterSetup()
         {
-            _channel.ExchangeDeclare(DeadLetterExchangeName,
+            Channel.ExchangeDeclare(DeadLetterExchangeName,
                 Parameters.Source.ExchangeArgs.ExchangeType,
                 Parameters.Source.ExchangeArgs.Durable);
 

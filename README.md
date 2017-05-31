@@ -30,8 +30,8 @@ Now let's see the simplest form of consumer, which is just a thin layer from the
 
 ## Mailbox (Consumer)
 
-Consumer subscription is identical for every type, with exception of AckObservingConsumer (who can request ack to messages, see later),
-also every consumer is started and stopped the same simple way.
+Consumer subscription is identical for every type,
+giving an istance of an IConnectableObservable<T>, which must be started after subscriptions invoking its Connect() method (and disposing that after usage).
 
 ```cs
 using AliceMQ.Mailbox;
@@ -41,12 +41,15 @@ var mailboxArgs = new MailboxArgs(sourceArgs);
 
 var mb = new MailBox(connectionFactoryParameters, mailboxArgs, autoAck: false);
 mb.Subscribe(OnNext, OnError, OnComplete);
+var d = mb.Connect();
+//...
+d.Dispose();
 ```
 
 ## CustomMailBox (Typed Consumer)
 
-let's consider an example DTO class Msg, the typed consumer is build upon the common consumer.
-Added functionality is just being able to properly deserialize the message from json string.
+let's consider an example DTO class Msg, the typed consumer is build upon the common consumer, which is enhanced with message body deserialization into an istance of a generic T type. The deserialization uses the usual Json.Net library, so that custom
+json serializer settings can be optionally specified. A custom fromPascalToJsonContractResolver type is provided within the library.
 
 ```cs
 var serialization = new JsonSerializerSettings
@@ -64,34 +67,37 @@ custom.Subscribe(am =>
     else
         Console.WriteLine("error - " + am.AsError().Ex);
 });
+var d = custom.Connect();
+//...
+d.Dispose();
 ```
 
 ## ConfirmableMailbox (observable of ConfirmableEnvelope)
 
-the ConfirmableMailbox is build upon the typed consumer, and adds the ability to consume ConfirmableEnvelope (ackable) messages, which have the ability to notify their observing consumer when a message wants to be accepted (acked) or rejected (nacked), decoupling message delivery confirmation from the consumer.
-
-This can be done only if the original mailBox was enabled to give acks and nacks via its properties (otherwise an exception is readilly raised)
+the ConfirmableMailbox is build upon the typed consumer, and adds the ability to consume ConfirmableEnvelope<T> (ackable) messages, which have the ability to notify their observing consumer when a message wants to be accepted (acked) or rejected (nacked), decoupling message delivery confirmation from the consumer.
 
 ```cs
 var confirmable = new ConfirmableMailbox(custom);
 
-confirmable.Subscribe(cm =>
+confirmable.Subscribe(am =>
 {
-    if (am.Content.IsOk<Msg>())
+    if (am.IsOk())
     {
-        Console.WriteLine("ok - " + am.Content.AsOk<Msg>().Message?.Bla);
+        Console.WriteLine("C - " + am.Content().Bla);
         am.Accept();
     }
     else
     {
-        Console.WriteLine("error - " + am.Content.AsError().Ex);
+        Console.WriteLine("C - error." + am.Exception());
         am.Reject();
     }
-}, OnError, OnComplete);
+});
+var d = confirmable.Connect();
+//...
+d.Dispose();
 ```
 
-The class T is here internally wrapped within a confirmable container class, so that one can request one of its instances to confirm message delivery by either accepting or rejecting the message, requesting the observer of IConfirmableMessage (which is internal to ConfirmableMailbox) to ack or nack to its source.
-Message confirmation (ack or nack) can be done only once, otherwise a specific esception is thrown as runtime. Observed ConfirmableEnvelope messages all implement the following interface:
+The IConvirmableEnvelope<T> istances also implement the IConfirmableMessage interface, providing a common abstraction for accepting (ack) or rejecting (nack) messages from the queue.
 
 
 ```cs
@@ -102,7 +108,7 @@ public interface IConfirmableMessage
 }
 ```
 
-## Arguments
+## Mailbox and Mailman Args
 
 Both Mailman and Mailbox need that you provide some basic parameters for configuring the Endpoint, the Source (namely Exchange and Queue), and the Mailbox (with more sofisticated configurations).
 

@@ -9,17 +9,17 @@ using RabbitMQ.Client.Events;
 namespace AliceMQ.MailBox.Core.Custom
 {
     public abstract class CustomMailBoxBase<T>:
-        IMailBox<IMessage>
+        IMailBox<IMessage>, IDisposable
     {
         private readonly JsonSerializerSettings _jsonSerializerSettings;
-        protected readonly IMailBox<BasicDeliverEventArgs> _mailBox;
+        protected readonly IMailBox<BasicDeliverEventArgs> MailBox;
 
         public bool IgnoreMissingJsonFields => _jsonSerializerSettings.MissingMemberHandling == MissingMemberHandling.Ignore;
 
         protected CustomMailBoxBase(IMailBox<BasicDeliverEventArgs> mailbox, 
             JsonSerializerSettings jsonSeralizerSettings = null)
         {
-            _mailBox = mailbox;
+            MailBox = mailbox;
             _jsonSerializerSettings = jsonSeralizerSettings;
         }
 
@@ -53,12 +53,12 @@ namespace AliceMQ.MailBox.Core.Custom
         }
 
         public IDisposable Subscribe(IObserver<IMessage> observer) =>
-            _mailBox.Select(ConsumeMessage).AsObservable().Subscribe(observer);
+            MailBox.Select(ConsumeMessage).AsObservable().Subscribe(observer);
 
-        public IDisposable Connect() => _mailBox.Connect();
+        public IDisposable Connect() => MailBox.Connect();
         public void Dispose()
         {
-            _mailBox.Dispose();
+            MailBox.Dispose();
         }
     }
 }

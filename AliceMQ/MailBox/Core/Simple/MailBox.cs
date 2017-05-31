@@ -32,7 +32,7 @@ namespace AliceMQ.MailBox.Core.Simple
 
         public virtual bool AckRequest(ulong deliveryTag, bool multiple)
         {
-            return Confirmation(deliveryTag, d => _channel.BasicAck(d, multiple));
+            return Confirmation(deliveryTag, d => Channel.BasicAck(d, multiple));
         }
 
         private bool Confirmation(ulong deliveryTag, Action<ulong> action)
@@ -54,7 +54,7 @@ namespace AliceMQ.MailBox.Core.Simple
 
         public virtual bool NackRequest(ulong deliveryTag, bool multiple, bool requeue)
         {
-            return Confirmation(deliveryTag, d => _channel.BasicNack(d, multiple, requeue));
+            return Confirmation(deliveryTag, d => Channel.BasicNack(d, multiple, requeue));
         }
 
         protected override void PrivateSequenceAction(BasicDeliverEventArgs s)

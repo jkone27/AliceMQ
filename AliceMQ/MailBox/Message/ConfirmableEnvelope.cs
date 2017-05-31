@@ -29,8 +29,8 @@ namespace AliceMQ.MailBox.Message
 
         public bool IsError() => _content.IsError();
 
-        public T Get() => _content.AsOk<T>().Message;
-        public Exception GetException() => _content.AsError().Ex;
+        public T Content() => _content.AsOk<T>().Message;
+        public Exception Exception() => _content.AsError().Ex;
 
         public void Accept(bool multiple = false)
         {
