@@ -1,5 +1,6 @@
 language: csharp
 solution: AliceMQ.sln
 install:
+  - mono ./.paket/paket.bootstrapper.exe
   - mono ./.paket/paket.exe restore
   - nuget restore solution-name.sln
