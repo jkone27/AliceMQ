@@ -5,4 +5,4 @@ install:
   - mono ./.paket/paket.exe restore
 script:
   - xbuild AliceMQ.sln
-  - mono ./packages/xunit.runner.console/tools/xunit.console.x86.exe ./AliceMQ.Tests/bin/Debug/AliceMQ.Tests.dll
+  - mono ./packages/xunit.runner.console/tools/xunit.console.exe ./AliceMQ.Tests/bin/Debug/AliceMQ.Tests.dll

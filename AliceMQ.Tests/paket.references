@@ -17,3 +17,4 @@ xunit.core
 xunit.extensibility.core
 xunit.extensibility.execution
 xunit.runner.console
+xunit.runner.visualstudio
