@@ -14,11 +14,12 @@ namespace AliceMQ.MailMan
         bool durableQueue = false,
         bool durableExchange = false,
         bool exclusive = false,
-        bool autoDelete = false,
+        bool autoDeleteQueue = false,
+		bool autoDeleteExchange = false,
         IDictionary<string, object> properties = null)
         {
-            QueueArgs = new QueueArgs(queueName, durableQueue, exclusive, autoDelete);
-            ExchangeArgs = new ExchangeArgs(exchangeName, exchangeType, properties, durableExchange);
+			QueueArgs = new QueueArgs(queueName, durableQueue, exclusive, autoDeleteQueue);
+            ExchangeArgs = new ExchangeArgs(exchangeName, exchangeType, properties, durableExchange, autoDeleteExchange);
         }
     }
 }

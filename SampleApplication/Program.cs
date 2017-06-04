@@ -36,7 +36,7 @@ namespace SampleApplication
                 MissingMemberHandling = MissingMemberHandling.Ignore,
                 ContractResolver = new FromPascalToJsContractResolver()
             };
-            var p = new Mailman(sourceArgs, endpointArgs, formatting: Formatting.Indented, jsonSerializerSettings: serialization);
+            var p = new Mailman(sourceArgs.ExchangeArgs, endpointArgs, formatting: Formatting.Indented, jsonSerializerSettings: serialization);
             //first message published creates exchange if non existent
             p.PublishOne(new Msg(-1),"");
 

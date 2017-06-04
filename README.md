@@ -22,7 +22,7 @@ var serialization = new JsonSerializerSettings
     ContractResolver = new FromPascalToJsContractResolver()
 };
 
-var p = new Mailman(sourceArgs, formatting: Formatting.Indented, jsonSerializerSettings: serialization);
+var p = new Mailman(sourceArgs.ExchangeArgs, formatting: Formatting.Indented, jsonSerializerSettings: serialization);
 p.PublishOne(new Msg("one"), "");
 ```
 
@@ -137,6 +137,7 @@ QueueArgs QueueArgs
 string ExchangeName
 string ExchangeType
 bool Durable
+bool AutoDelete
 IDictionary<string, object> Properties
 ```
 
