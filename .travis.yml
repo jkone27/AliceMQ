@@ -3,4 +3,6 @@ solution: AliceMQ.sln
 install:
   - mono ./.paket/paket.bootstrapper.exe
   - mono ./.paket/paket.exe restore
-  - nuget restore solution-name.sln
+script:
+  - xbuild AliceMQ.sln
+  - mono ./packages/xunit.runner.console/tools/xunit.console.exe AliceMQ.Tests/bin/Debug/AliceMQ.Tests.dll
