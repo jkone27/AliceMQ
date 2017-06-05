@@ -173,3 +173,6 @@ IDictionary<string, object> Arguments
 ushort PrefetchCount
 bool Global
 ```
+
+### Status
+[![Build Status](https://img.shields.io/travis/jkone27/AliceMQ.svg)](https://travis-ci.org/jkone27/AliceMQ)
