@@ -19,10 +19,13 @@ var sourceArgs = new SourceArgs("A", "A.q");
 var serialization = new JsonSerializerSettings
 {
     MissingMemberHandling = MissingMemberHandling.Ignore,
-    ContractResolver = new FromPascalToJsContractResolver()
+    ContractResolver = new DefaultContractResolver
+        {
+            NamingStrategy = new SnakeCaseNamingStrategy()
+        }
 };
 
-var p = new Mailman(sourceArgs.ExchangeArgs, formatting: Formatting.Indented, jsonSerializerSettings: serialization);
+var p = new Mailman(sourceArgs.ExchangeArgs, s => JsonConvert.SerializeObject(s, serialization));
 p.PublishOne(new Msg("one"), "");
 ```
 
@@ -48,17 +51,19 @@ d.Dispose();
 
 ## CustomMailBox (Typed Consumer)
 
-let's consider an example DTO class Msg, the typed consumer is build upon the common consumer, which is enhanced with message body deserialization into an istance of a generic T type. The deserialization uses the usual Json.Net library, so that custom
-json serializer settings can be optionally specified. A custom fromPascalToJsonContractResolver type is provided within the library.
+let's consider an example DTO class Msg, the typed consumer is build upon the common consumer, which is enhanced with message body deserialization into an istance of a generic T type.
 
 ```cs
 var serialization = new JsonSerializerSettings
 {
     MissingMemberHandling = MissingMemberHandling.Ignore,
-    ContractResolver = new FromPascalToJsContractResolver()
+    ContractResolver = new DefaultContractResolver
+        {
+            NamingStrategy = new SnakeCaseNamingStrategy()
+        }
 };
 
-var custom = new CustomMailBox<Msg>(mb, serialization);
+var custom = new CustomMailBox<Msg>(mb, s => JsonConvert.SerializeObject(s, serialization));
 
 custom.Subscribe(am =>
 {
