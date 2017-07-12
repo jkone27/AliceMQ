@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using RabbitMQ.Client;
 
 namespace AliceMQ.MailMan.Interface
 {
@@ -11,6 +13,6 @@ namespace AliceMQ.MailMan.Interface
         void CustomPublishSome<T,TP>(
             IList<IMessageProperty<T, TP>> messagePropertyTuples, 
             string routingKey, 
-            IDynamicPropertiesSetter<TP> propertiesSetter);
+            Action<TP,IBasicProperties> dynamicPropertiesSetter);
     }
 }

@@ -8,8 +8,8 @@ using AliceMQ.MailBox.Core.Custom;
 using AliceMQ.MailBox.Core.Simple;
 using AliceMQ.MailBox.EndPointArgs;
 using AliceMQ.MailMan;
-using AliceMQ.Serialize;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace SampleApplication
 {
@@ -34,15 +34,19 @@ namespace SampleApplication
             var serialization = new JsonSerializerSettings
             {
                 MissingMemberHandling = MissingMemberHandling.Ignore,
-                ContractResolver = new FromPascalToJsContractResolver()
+                ContractResolver = new DefaultContractResolver
+                {
+                    NamingStrategy = new SnakeCaseNamingStrategy()
+                }
             };
-            var p = new Mailman(sourceArgs.ExchangeArgs, endpointArgs, formatting: Formatting.Indented, jsonSerializerSettings: serialization);
+            var p = new Mailman(sourceArgs.ExchangeArgs, endpointArgs, 
+                 s => JsonConvert.SerializeObject(s, serialization));
             //first message published creates exchange if non existent
             p.PublishOne(new Msg(-1),"");
 
             var mb = new MailBox(endpointArgs, mailboxArgs);
 
-            var custom = new CustomMailBox<Msg>(mb, serialization);
+            var custom = new CustomMailBox<Msg>(mb, s => JsonConvert.DeserializeObject<Msg>(s, serialization));
             var confirmable = new ConfirmableMailbox<Msg>(custom);
 
             Task.Run(() => Console.WriteLine("waiting for messages.."));

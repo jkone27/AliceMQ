@@ -1,5 +1,5 @@
+using System;
 using AliceMQ.MailBox.Interface;
-using Newtonsoft.Json;
 using RabbitMQ.Client.Events;
 
 namespace AliceMQ.MailBox.Core.Custom
@@ -8,10 +8,7 @@ namespace AliceMQ.MailBox.Core.Custom
        IAckableMailbox<IMessage>
     {
         public CustomMailBox(IAckableMailbox<BasicDeliverEventArgs> mailbox,
-            JsonSerializerSettings jsonSeralizerSettings = null):base(mailbox, jsonSeralizerSettings)
-        {
-            
-        }
+            Func<string,T> deserializer):base(mailbox, deserializer) { }
 
         public bool AckRequest(ulong deliveryTag, bool multiple)
         {

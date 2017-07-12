@@ -2,10 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AliceMQ.ExtensionMethods;
-using AliceMQ.MailBox;
 using AliceMQ.MailBox.EndPointArgs;
 using AliceMQ.MailMan.Interface;
-using Newtonsoft.Json;
 using RabbitMQ.Client;
 
 namespace AliceMQ.MailMan
@@ -17,18 +15,15 @@ namespace AliceMQ.MailMan
 
         protected readonly ConnectionFactory Factory;
 		private readonly ExchangeArgs _exchangeArgs;
-        private readonly Formatting _formatting;
-        private readonly JsonSerializerSettings _serializerSettings;
+        private readonly Func<object, string> _serializer;
 
         protected RabbitMailmanLogic(
             EndpointArgs endpointArgs, 
             ExchangeArgs exchangeArgs,
-            Formatting formatting = Formatting.None,
-            JsonSerializerSettings serializerSettings = null)
+             Func<object, string> serializer)
         {
 			_exchangeArgs = exchangeArgs;
-            _formatting = formatting;
-            _serializerSettings = serializerSettings;
+            _serializer = serializer;
             Factory = new ConnectionFactory
             {
                 HostName = endpointArgs.HostName,
@@ -44,12 +39,10 @@ namespace AliceMQ.MailMan
         protected RabbitMailmanLogic(
             SimpleEndpointArgs simpleEndpointArgs, 
             ExchangeArgs exchangeArgs, 
-            Formatting formatting = Formatting.None,
-            JsonSerializerSettings serializerSettings = null)
+            Func<object,string> serializer)
         {
 			_exchangeArgs = exchangeArgs;
-            _formatting = formatting;
-            _serializerSettings = serializerSettings;
+            _serializer = serializer;
             Factory = new ConnectionFactory
             {
                 Uri = simpleEndpointArgs.ConnectionUrl,
@@ -94,11 +87,6 @@ namespace AliceMQ.MailMan
             }
         }
 
-        private string SerializeMessage<T>(T message)
-        {
-            return message as String ?? JsonConvert.SerializeObject(message, typeof(T), _formatting, _serializerSettings);
-        }
-
         private void TryApplyOnNewChannel(Action<IModel> channelAction)
         {
             try
@@ -124,7 +112,7 @@ namespace AliceMQ.MailMan
 
         private Action<IModel> SendMessageOnChannel<T>(T message, string routingKey, Action<IBasicProperties> propertiesSetter = null)
         {
-            var serializedMsg = SerializeMessage(message);
+            var serializedMsg = _serializer(message);
             return channel => RabbitSendMessage(channel, serializedMsg, UpdateProperties(propertiesSetter)(channel), routingKey);
         }
 

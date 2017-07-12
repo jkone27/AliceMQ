@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using AliceMQ.ExtensionMethods;
-using AliceMQ.MailBox;
 using AliceMQ.MailBox.EndPointArgs;
 using AliceMQ.MailMan.Interface;
-using Newtonsoft.Json;
 using RabbitMQ.Client;
 
 namespace AliceMQ.MailMan
@@ -13,32 +12,30 @@ namespace AliceMQ.MailMan
         RabbitMailmanLogic, 
         IMailman
     {
-        private readonly IStaticPropertiesSetter _staticPropertiesSetter;
+        private readonly Action<IBasicProperties> _staticPropertiesSetter;
         private readonly Action<Exception> _publishErrorAction;
 
         public Mailman(
             ExchangeArgs exchangeArgs, 
             EndpointArgs endpointArgs,
+            Func<object, string> serializer,
             Action<Exception> publishErrorAction = null,
-            IStaticPropertiesSetter staticPropertiesSetter = null,
-            Formatting formatting = Formatting.None,
-            JsonSerializerSettings jsonSerializerSettings = null
+            Action<IBasicProperties> staticPropertiesSetter = null
         )
-            : base(endpointArgs, exchangeArgs, formatting, jsonSerializerSettings)
+            : base(endpointArgs, exchangeArgs, serializer)
         {
-            _staticPropertiesSetter = staticPropertiesSetter ?? new NoSetter();
+            _staticPropertiesSetter = staticPropertiesSetter ?? (_ => { });
             _publishErrorAction = publishErrorAction ?? (p => { });
         }
 
         public Mailman( 
             SimpleEndpointArgs simpleEndpointArgs, 
             ExchangeArgs exchangeArgs,
+            Func<object, string> serializer,
             Action<Exception> publishErrorAction = null,
-            IStaticPropertiesSetter staticPropertiesSetter = null,
-            Formatting formatting = Formatting.None,
-            JsonSerializerSettings jsonSerializerSettings = null
+            Action<IBasicProperties> staticPropertiesSetter = null
             )
-			: base(simpleEndpointArgs, exchangeArgs, formatting, jsonSerializerSettings)
+			: base(simpleEndpointArgs, exchangeArgs, serializer)
         {
             _staticPropertiesSetter = staticPropertiesSetter;
             _publishErrorAction = publishErrorAction ?? (p => { });
@@ -47,28 +44,41 @@ namespace AliceMQ.MailMan
 
         public void PublishOne<T>(T message, string routingKey)
         {
-            ((Action<
-                T, string, Action<IBasicProperties>
-                >) base.PublishOne)
-            .TryDo(message, routingKey, _staticPropertiesSetter.Set, _publishErrorAction);
+            try
+            {
+                base.PublishOne(message, routingKey, _staticPropertiesSetter);
+            }
+            catch (Exception ex)
+            {
+                _publishErrorAction(ex);
+            }
         }
 
         public void PublishSome<T>(IList<T> messages, string routingKey)
         {
-            ((Action<
-                IList<T>, string, Action<IBasicProperties>
-                >) base.PublishSome)
-            .TryDo(messages,routingKey, _staticPropertiesSetter.Set, _publishErrorAction);
+            try
+            {
+                base.PublishSome(messages, routingKey, _staticPropertiesSetter);
+            }
+            catch (Exception ex)
+            {
+                _publishErrorAction(ex);
+            }
         }
 
-        public void CustomPublishSome<T,TP>(IList<IMessageProperty<T, TP>> messagePropertyTuples, string routingKey,
-            IDynamicPropertiesSetter<TP> propertiesSetter)
+        public void CustomPublishSome<T,TP>(
+            IList<IMessageProperty<T, TP>> messagePropertyTuples, 
+            string routingKey,
+            Action<TP, IBasicProperties> dynamicPropertiesSetter)
         {
-            ((Action<
-                IList<IMessageProperty<T, TP>>, string, Action<TP,IBasicProperties>
-                >) 
-                base.CustomPublishSome)
-           .TryDo(messagePropertyTuples, routingKey, propertiesSetter.Set, _publishErrorAction);
+            try
+            {
+                base.CustomPublishSome(messagePropertyTuples, routingKey, dynamicPropertiesSetter);
+            }
+            catch (Exception ex)
+            {
+                _publishErrorAction(ex);
+            }
         }
     }
 }

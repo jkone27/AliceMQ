@@ -3,32 +3,28 @@ using System.Reactive.Linq;
 using AliceMQ.ExtensionMethods;
 using AliceMQ.MailBox.Interface;
 using AliceMQ.MailBox.Message;
-using Newtonsoft.Json;
 using RabbitMQ.Client.Events;
 
 namespace AliceMQ.MailBox.Core.Custom
 {
     public abstract class CustomMailBoxBase<T>:
-        IMailBox<IMessage>, IDisposable
+        IMailBox<IMessage>
     {
-        private readonly JsonSerializerSettings _jsonSerializerSettings;
         protected readonly IMailBox<BasicDeliverEventArgs> MailBox;
-
-        public bool IgnoreMissingJsonFields => _jsonSerializerSettings.MissingMemberHandling == MissingMemberHandling.Ignore;
+        private readonly Func<string, T> _deserializer;
 
         protected CustomMailBoxBase(IMailBox<BasicDeliverEventArgs> mailbox, 
-            JsonSerializerSettings jsonSeralizerSettings = null)
+            Func<string, T> deserializer)
         {
             MailBox = mailbox;
-            _jsonSerializerSettings = jsonSeralizerSettings;
+            _deserializer = deserializer;
         }
 
         private IMessage ConsumeMessage(BasicDeliverEventArgs e)
         {
             try
             {
-                var typedMessage = TypedMessage(Payload(e));
-
+                var typedMessage = _deserializer(Payload(e));
                 if (typedMessage == null)
                     throw new Exception("typedMessage is null.");
 
@@ -38,13 +34,6 @@ namespace AliceMQ.MailBox.Core.Custom
             {
                 return new Error(e, ex);
             }
-        }
-
-        private T TypedMessage(string payload)
-        {
-            return typeof(T) == typeof(string)
-                ? (T) (object) payload
-                : JsonConvert.DeserializeObject<T>(payload, _jsonSerializerSettings);
         }
 
         private static string Payload(BasicDeliverEventArgs e)
