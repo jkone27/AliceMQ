@@ -25,7 +25,7 @@ var serialization = new JsonSerializerSettings
         }
 };
 
-var p = new Mailman(sourceArgs.ExchangeArgs, s => JsonConvert.DeserializeObject<Msg>(s, serialization));
+var p = new Mailman(sourceArgs.ExchangeArgs, s => JsonConvert.SerializeObject(s, serialization));
 p.PublishOne(new Msg("one"), "");
 ```
 
@@ -63,7 +63,7 @@ var serialization = new JsonSerializerSettings
         }
 };
 
-var custom = new CustomMailBox<Msg>(mb, s => JsonConvert.SerializeObject(s, serialization));
+var custom = new CustomMailBox<Msg>(mb, s => JsonConvert.DeserializeObject<Msg>(s, serialization));
 
 custom.Subscribe(am =>
 {
