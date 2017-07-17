@@ -25,7 +25,7 @@ var serialization = new JsonSerializerSettings
         }
 };
 
-var p = new Mailman(sourceArgs.ExchangeArgs, s => JsonConvert.SerializeObject(s, serialization));
+var p = new Mailman(sourceArgs.ExchangeArgs, s => JsonConvert.DeserializeObject<Msg>(s, serialization));
 p.PublishOne(new Msg("one"), "");
 ```
 
