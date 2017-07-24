@@ -45,7 +45,7 @@ namespace AliceMQ.MailMan
             _serializer = serializer;
             Factory = new ConnectionFactory
             {
-                Uri = simpleEndpointArgs.ConnectionUrl,
+                Uri = new Uri(simpleEndpointArgs.ConnectionUrl),
                 NetworkRecoveryInterval = simpleEndpointArgs.NetworkRecoveryInterval,
                 AutomaticRecoveryEnabled = simpleEndpointArgs.AutomaticRecoveryEnabled
             };

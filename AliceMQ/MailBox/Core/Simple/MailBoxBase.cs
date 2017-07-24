@@ -52,7 +52,7 @@ namespace AliceMQ.MailBox.Core.Simple
             ConnectionUrl = simpleEndpointArgs.ConnectionUrl;
             _factory = new ConnectionFactory
             {
-                Uri = simpleEndpointArgs.ConnectionUrl,
+                Uri = new Uri(simpleEndpointArgs.ConnectionUrl),
                 AutomaticRecoveryEnabled = simpleEndpointArgs.AutomaticRecoveryEnabled,
                 NetworkRecoveryInterval = simpleEndpointArgs.NetworkRecoveryInterval
             };
