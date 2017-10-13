@@ -10,19 +10,19 @@ namespace AliceMQ.Tests
         public IObservable<BasicDeliverEventArgs> Source;
 
         public FakeAutoMailbox(IObservable<BasicDeliverEventArgs> source)
-            : base(new EndpointArgs(), null)
+            : base(new EndPoint(), null)
         {
             Source = source;
         }
 
-        protected override IObservable<BasicDeliverEventArgs> ConsumerReceivedObservable => Source;
+        protected IObservable<BasicDeliverEventArgs> ConsumerReceivedObservable => Source;
 
-        protected override void StartConsumer()
+        protected void StartConsumer()
         {
             //
         }
 
-        protected override void SetupEnvironment()
+        protected void SetupEnvironment()
         {
             //
         }

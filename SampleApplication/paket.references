@@ -6,3 +6,4 @@ System.Reactive.Interfaces
 System.Reactive.Linq
 System.Reactive.PlatformServices
 System.Reactive.Windows.Threading
+Newtonsoft.Json

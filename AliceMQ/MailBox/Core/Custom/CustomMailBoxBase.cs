@@ -7,13 +7,14 @@ using RabbitMQ.Client.Events;
 
 namespace AliceMQ.MailBox.Core.Custom
 {
-    public abstract class CustomMailBoxBase<T>:
+
+    public sealed class CustomMailBoxBase<T>:
         IMailBox<IMessage>
     {
-        protected readonly IMailBox<BasicDeliverEventArgs> MailBox;
+        public readonly IMailBox<BasicDeliverEventArgs> MailBox;
         private readonly Func<string, T> _deserializer;
 
-        protected CustomMailBoxBase(IMailBox<BasicDeliverEventArgs> mailbox, 
+        public CustomMailBoxBase(IMailBox<BasicDeliverEventArgs> mailbox, 
             Func<string, T> deserializer)
         {
             MailBox = mailbox;
@@ -26,7 +27,7 @@ namespace AliceMQ.MailBox.Core.Custom
             {
                 var typedMessage = _deserializer(Payload(e));
                 if (typedMessage == null)
-                    throw new Exception("typedMessage is null.");
+                    throw new NullReferenceException($"{nameof(typedMessage)} is null.");
 
                 return new Ok<T>(typedMessage, e);
             }

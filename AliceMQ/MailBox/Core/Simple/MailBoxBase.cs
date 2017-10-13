@@ -8,30 +8,46 @@ using RabbitMQ.Client.Events;
 
 namespace AliceMQ.MailBox.Core.Simple
 {
-    public abstract class MailBoxBase: IDisposable
+    public interface IMailboxBase : IDisposable, IConnectableObservable<BasicDeliverEventArgs>
     {
-        public string ConnectionUrl { get; private set; }
+        string ConnectionUrl { get; }
+        string QueueName { get; }
+        string ExchangeName { get; }
+        string DeadLetterExchangeName { get; }
+        IModel Channel { get; }
+    }
+
+    public sealed class MailBoxBase: IMailboxBase
+    {
+        public string ConnectionUrl { get; }
         public string QueueName => Parameters.Source.QueueArgs.QueueName;
 
-        public string ExchangeName => Parameters.Source.ExchangeArgs.ExchangeName;
+        public string ExchangeName => Parameters.Source.Exchange.ExchangeName;
 
         public string DeadLetterExchangeName => Parameters.DeadLetterExchangeName;
 
         private readonly IConnectionFactory _factory;
         private IConnection _connection;
-        protected IModel Channel;
+        public IModel Channel { get; private set; }
         private readonly CompositeDisposable _compositeDisposable;
 
 
         public IDisposable Subscribe(IObserver<BasicDeliverEventArgs> observer)
         {
-            return PrivateSequence().Subscribe(observer);
+            SetupEnvironment();
+            _consumer = new EventingBasicConsumer(Channel);
+
+            return Observable
+                .FromEventPattern<BasicDeliverEventArgs>(_consumer, nameof(_consumer.Received))
+                .Select(e => e.EventArgs)
+                .Do(PrivateSequenceAction)
+                .Publish()
+                .Subscribe(observer);
         }
 
-        public readonly MailboxArgs Parameters;
+        public readonly Sink Parameters;
         private readonly bool _autoAck;
         private EventingBasicConsumer _consumer;
-        private IConnectableObservable<BasicDeliverEventArgs> _privateConnectableSequence;
 
         public bool DefaultExchange => string.IsNullOrWhiteSpace(ExchangeName);
 
@@ -41,72 +57,31 @@ namespace AliceMQ.MailBox.Core.Simple
         {
             _autoAck = autoAck;
             _compositeDisposable = new CompositeDisposable();
-            _privateConnectableSequence = null;
         }
 
-        protected MailBoxBase(SimpleEndpointArgs simpleEndpointArgs,
-            MailboxArgs mailboxArgs,
+        public MailBoxBase(EndPoint simpleEndpoint,
+            Sink sink,
             bool autoAck) : this(autoAck)
         {
-            Parameters = mailboxArgs;
-            ConnectionUrl = simpleEndpointArgs.ConnectionUrl;
+            Parameters = sink;
+            ConnectionUrl = simpleEndpoint.ConnectionUrl;
             _factory = new ConnectionFactory
             {
-                Uri = new Uri(simpleEndpointArgs.ConnectionUrl),
-                AutomaticRecoveryEnabled = simpleEndpointArgs.AutomaticRecoveryEnabled,
-                NetworkRecoveryInterval = simpleEndpointArgs.NetworkRecoveryInterval
+                Uri = new Uri(simpleEndpoint.ConnectionUrl),
+                AutomaticRecoveryEnabled = simpleEndpoint.AutomaticRecoveryEnabled,
+                NetworkRecoveryInterval = simpleEndpoint.NetworkRecoveryInterval
             };
         }
 
-        protected MailBoxBase(
-            EndpointArgs connParams,
-            MailboxArgs mailboxArgs,
-            bool autoAck) : this(autoAck)
-        {
-            Parameters = mailboxArgs;
-            _factory = new ConnectionFactory
-            {
-                HostName = connParams.HostName,
-                Port = connParams.Port,
-                UserName = connParams.UserName,
-                Password = connParams.Password,
-                VirtualHost = connParams.VirtualHost,
-                AutomaticRecoveryEnabled = connParams.AutomaticRecoveryEnabled,
-                NetworkRecoveryInterval = connParams.NetworkRecoveryInterval
-            };
-            ConnectionUrl =
-                $"amqp://{connParams.UserName}:{connParams.Password}@{connParams.HostName}:{connParams.Port}/{connParams.VirtualHost}";
-        }
-
-
-        private IConnectableObservable<BasicDeliverEventArgs> PrivateSequence()
-        {
-            if (_privateConnectableSequence == null)
-            {
-                SetupEnvironment();
-                _consumer = new EventingBasicConsumer(Channel);
-
-                _privateConnectableSequence =
-                    ConsumerReceivedObservable
-                        .Do(PrivateSequenceAction)
-                        .Publish();
-            }
-            return _privateConnectableSequence;
-        }
-
-        protected virtual void PrivateSequenceAction(BasicDeliverEventArgs s)
+        public void PrivateSequenceAction(BasicDeliverEventArgs s)
         {
             //
         }
 
-        protected virtual void StartConsumer() =>
+        public void StartConsumer() =>
             Channel.BasicConsume(Parameters.Source.QueueArgs.QueueName, _autoAck, _consumer);
 
-        protected virtual IObservable<BasicDeliverEventArgs> ConsumerReceivedObservable =>
-            Observable.FromEventPattern<BasicDeliverEventArgs>(_consumer, nameof(_consumer.Received)).Select(e => e.EventArgs);
-            
-
-        protected virtual void SetupEnvironment()
+        public void SetupEnvironment()
         {
             try
             {
@@ -129,7 +104,7 @@ namespace AliceMQ.MailBox.Core.Simple
         private void QueueBind()
         {
             Channel.QueueBind(Parameters.Source.QueueArgs.QueueName,
-                Parameters.Source.ExchangeArgs.ExchangeName,
+                Parameters.Source.Exchange.ExchangeName,
                 Parameters.QueueBind.RoutingKey,
                 Parameters.QueueBind.Arguments);
         }
@@ -156,8 +131,8 @@ namespace AliceMQ.MailBox.Core.Simple
         private void DeadLetterSetup()
         {
             Channel.ExchangeDeclare(DeadLetterExchangeName,
-                Parameters.Source.ExchangeArgs.ExchangeType,
-                Parameters.Source.ExchangeArgs.Durable);
+                Parameters.Source.Exchange.ExchangeType,
+                Parameters.Source.Exchange.Durable);
 
             Parameters.QueueDeclareArguments.Add("x-dead-letter-exchange", DeadLetterExchangeName);
 
@@ -172,9 +147,8 @@ namespace AliceMQ.MailBox.Core.Simple
 
         public IDisposable Connect()
         {
-            var connection = _privateConnectableSequence.Connect();
             StartConsumer();
-            return connection;
+            return _compositeDisposable;
         }
     }
 }

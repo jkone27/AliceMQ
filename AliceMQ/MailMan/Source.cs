@@ -2,12 +2,12 @@ using System.Collections.Generic;
 
 namespace AliceMQ.MailMan
 {
-    public class SourceArgs
+    public class Source : ISource
     {
-        public ExchangeArgs ExchangeArgs { get; }
-        public QueueArgs QueueArgs { get; }
+        public IExchange Exchange { get; set; }
+        public IQueueArgs QueueArgs { get; set; }
 
-        public SourceArgs(
+        public Source(
         string exchangeName,
         string queueName = "",
         string exchangeType = RabbitMQ.Client.ExchangeType.Direct,
@@ -19,7 +19,13 @@ namespace AliceMQ.MailMan
         IDictionary<string, object> properties = null)
         {
 			QueueArgs = new QueueArgs(queueName, durableQueue, exclusive, autoDeleteQueue);
-            ExchangeArgs = new ExchangeArgs(exchangeName, exchangeType, properties, durableExchange, autoDeleteExchange);
+            Exchange = new Exchange(exchangeName, exchangeType, properties, durableExchange, autoDeleteExchange);
         }
+    }
+
+    public interface ISource
+    {
+        IExchange Exchange { get; }
+        IQueueArgs QueueArgs { get; }
     }
 }

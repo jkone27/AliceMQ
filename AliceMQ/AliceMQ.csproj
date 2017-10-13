@@ -66,8 +66,7 @@
     <Compile Include="MailBox\Interface\IConfirmableDelivery.cs" />
     <Compile Include="ExtensionMethods\ActionExtensions.cs" />
     <Compile Include="ExtensionMethods\BasicPropertiesExtensions.cs" />
-    <Compile Include="MailBox\MailboxArgs.cs" />
-    <Compile Include="MailBox\EndPointArgs\EndpointArgs.cs" />
+    <Compile Include="MailBox\Sink.cs" />
     <Compile Include="MailBox\Core\ConfirmableMailbox.cs" />
     <Compile Include="MailBox\Core\Simple\MailBox.cs" />
     <Compile Include="MailBox\Core\Custom\CustomMailBox.cs" />
@@ -77,19 +76,19 @@
     <Compile Include="MailBox\Interface\IConfirmableMessage.cs" />
     <Compile Include="MailBox\Interface\IMessage.cs" />
     <Compile Include="MailBox\Message\Ok.cs" />
-    <Compile Include="MailBox\EndPointArgs\SimpleEndpointArgs.cs" />
+    <Compile Include="MailBox\EndPointArgs\EndPoint.cs" />
     <Compile Include="ExtensionMethods\ExceptionExtensions.cs" />
     <Compile Include="MailBox\QueueBind.cs" />
-    <Compile Include="MailMan\ExchangeArgs.cs" />
+    <Compile Include="MailMan\Exchange.cs" />
     <Compile Include="MailMan\Interface\IMailman.cs" />
     <Compile Include="MailMan\Interface\IMessageProperty.cs" />
     <Compile Include="MailMan\MessageProperty.cs" />
-    <Compile Include="MailMan\MailmanSetupException.cs" />
+    <Compile Include="MailMan\SetupException.cs" />
     <Compile Include="MailMan\QueueArgs.cs" />
     <Compile Include="MailMan\RabbitMailmanLogic.cs" />
     <Compile Include="MailMan\Mailman.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="MailMan\SourceArgs.cs" />
+    <Compile Include="MailMan\Source.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="AliceMQ.csprj.paket.template" />

@@ -126,8 +126,8 @@ namespace AliceMQ.Tests
                 .Select(z => NewArgs(WrongPayload));
 
             var mb = new FakeMailbox(src);
-            var c = new CustomMailBox<TestMessage>(mb, JsonConvert.DeserializeObject<TestMessage>);
-            var conf = new ConfirmableMailbox<TestMessage>(c);
+            var c = new FakeCustomMailbox<TestMessage>(mb, JsonConvert.DeserializeObject<TestMessage>);
+            var conf = new FakeConfirmableMailbox<TestMessage>(c);
 
             conf.Subscribe(m =>
                 {
@@ -156,8 +156,8 @@ namespace AliceMQ.Tests
                 .Select(z => NewArgs());
 
             var mb = new FakeMailbox(src);
-            var custom = new CustomMailBox<string>(mb, str => str);
-            var c = new ConfirmableMailbox<TestMessage>(custom);
+            var custom = new FakeCustomMailbox<string>(mb, str => str);
+            var c = new FakeConfirmableMailbox<TestMessage>(custom);
 
             c.Subscribe(m =>
                 { received = true;
@@ -167,7 +167,6 @@ namespace AliceMQ.Tests
             c.Connect();
             s.AdvanceBy(1);
             Assert.True(received);
-            Assert.True(mb.Acks == 1);
         }
 
         [Fact]
@@ -180,8 +179,8 @@ namespace AliceMQ.Tests
                 .Select(z => NewArgs());
 
             var mb = new FakeMailbox(src);
-            var custom = new CustomMailBox<string>(mb, str => str);
-            var c = new ConfirmableMailbox<TestMessage>(custom);
+            var custom = new FakeCustomMailbox<string>(mb, str => str);
+            var c = new FakeConfirmableMailbox<TestMessage>(custom);
 
             c.Subscribe(m =>
             {
@@ -205,8 +204,8 @@ namespace AliceMQ.Tests
                 .Select(z => NewArgs());
 
             var mb = new FakeMailbox(src);
-            var typed = new CustomMailBox<string>(mb, str => str);
-            var c = new ConfirmableMailbox<TestMessage>(typed);
+            var typed = new FakeCustomMailbox<string>(mb, str => str);
+            var c = new FakeConfirmableMailbox<TestMessage>(typed);
 
             c.Subscribe(m =>
             {
@@ -235,8 +234,8 @@ namespace AliceMQ.Tests
                 .Select(z => NewArgs(WrongPayload));
 
             var mb = new FakeMailbox(src);
-            var typed = new CustomMailBox<TestMessage>(mb, JsonConvert.DeserializeObject<TestMessage>);
-            var c = new ConfirmableMailbox<TestMessage>(typed);
+            var typed = new FakeCustomMailbox<TestMessage>(mb, JsonConvert.DeserializeObject<TestMessage>);
+            var c = new FakeConfirmableMailbox<TestMessage>(typed);
 
             c.Subscribe(m =>
             {

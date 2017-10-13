@@ -2,12 +2,12 @@ using System;
 
 namespace AliceMQ.MailMan
 {
-    public class MailmanSetupException : Exception
+    public class SetupException : Exception
     {
-        public MailmanSetupException(string message)
+        public SetupException(string message)
             : base(message) { }
 
-        public MailmanSetupException(Exception innerException)
+        public SetupException(Exception innerException)
             : base($"{innerException.Message}\r\n{innerException.StackTrace}") { }
     }
 }

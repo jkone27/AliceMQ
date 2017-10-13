@@ -1,6 +1,6 @@
 namespace AliceMQ.MailMan
 {
-    public class QueueArgs
+    public class QueueArgs : IQueueArgs
     {
         public QueueArgs(string queueName = "", bool durable = true, bool exclusive = false, bool autoDelete = false)
         {
@@ -10,9 +10,17 @@ namespace AliceMQ.MailMan
             AutoDelete = autoDelete;
         }
 
-        public string QueueName { get; }
-        public bool Durable { get; }
-        public bool Exclusive { get; }
-        public bool AutoDelete { get; }
+        public string QueueName { get; set; }
+        public bool Durable { get; set; }
+        public bool Exclusive { get; set; }
+        public bool AutoDelete { get; set; }
+    }
+
+    public interface IQueueArgs
+    {
+        string QueueName { get; }
+        bool Durable { get; }
+        bool Exclusive { get; }
+        bool AutoDelete { get; }
     }
 }

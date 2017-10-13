@@ -8,70 +8,51 @@ using RabbitMQ.Client;
 
 namespace AliceMQ.MailMan
 {
-    public abstract class RabbitMailmanLogic
+    public sealed class RabbitMailmanLogic
     {
-        public string ExchangeName => _exchangeArgs.ExchangeName;
+        public string ExchangeName => _exchange.ExchangeName;
         public bool DefaultExchange => string.IsNullOrWhiteSpace(ExchangeName);
 
-        protected readonly ConnectionFactory Factory;
-		private readonly ExchangeArgs _exchangeArgs;
+        public readonly ConnectionFactory Factory;
+		private readonly IExchange _exchange;
         private readonly Func<object, string> _serializer;
 
-        protected RabbitMailmanLogic(
-            EndpointArgs endpointArgs, 
-            ExchangeArgs exchangeArgs,
-             Func<object, string> serializer)
-        {
-			_exchangeArgs = exchangeArgs;
-            _serializer = serializer;
-            Factory = new ConnectionFactory
-            {
-                HostName = endpointArgs.HostName,
-                Port = endpointArgs.Port,
-                UserName = endpointArgs.UserName,
-                Password = endpointArgs.Password,
-                VirtualHost = endpointArgs.VirtualHost,
-                NetworkRecoveryInterval = endpointArgs.NetworkRecoveryInterval,
-                AutomaticRecoveryEnabled = endpointArgs.AutomaticRecoveryEnabled
-            };
-        }
-
-        protected RabbitMailmanLogic(
-            SimpleEndpointArgs simpleEndpointArgs, 
-            ExchangeArgs exchangeArgs, 
+        public RabbitMailmanLogic(
+            EndPoint simpleEndpoint, 
+            IExchange exchange, 
             Func<object,string> serializer)
         {
-			_exchangeArgs = exchangeArgs;
+			_exchange = exchange;
             _serializer = serializer;
             Factory = new ConnectionFactory
             {
-                Uri = new Uri(simpleEndpointArgs.ConnectionUrl),
-                NetworkRecoveryInterval = simpleEndpointArgs.NetworkRecoveryInterval,
-                AutomaticRecoveryEnabled = simpleEndpointArgs.AutomaticRecoveryEnabled
+                Uri = new Uri(simpleEndpoint.ConnectionUrl),
+                NetworkRecoveryInterval = simpleEndpoint.NetworkRecoveryInterval,
+                AutomaticRecoveryEnabled = simpleEndpoint.AutomaticRecoveryEnabled
             };
         }
 
-        protected IBasicProperties SetupChannel(IModel channel)
+        public IBasicProperties SetupChannel(IModel channel)
         {
             try
             {
                 if (!DefaultExchange)
                     channel.ExchangeDeclare(
                         ExchangeName,
-                        _exchangeArgs.ExchangeType,
-						_exchangeArgs.Durable,
-						_exchangeArgs.AutoDelete,
-						_exchangeArgs.Properties);
+                        _exchange.ExchangeType,
+						_exchange.Durable,
+						_exchange.AutoDelete,
+						_exchange.Properties);
 
                 return channel.CreateBasicProperties();
             }
             catch (Exception ex)
             {
-                throw new MailmanSetupException(ex);
+                throw new SetupException(ex);
             }
         }
 
-        protected void RabbitSendMessage(IModel channel, string message,
+        public void RabbitSendMessage(IModel channel, string message,
             IBasicProperties props, string routingKey, Action<string, Exception> onExceptionAction = null) 
         {
             try
@@ -95,13 +76,13 @@ namespace AliceMQ.MailMan
                 using (var channel = connection.CreateModel())
                     channelAction(channel);
             }
-            catch (MailmanSetupException)
+            catch (SetupException)
             {
                 throw;
             }
             catch (Exception ex)
             {
-                throw new MailmanSetupException(ex);
+                throw new SetupException(ex);
             }
         }
 
@@ -116,12 +97,12 @@ namespace AliceMQ.MailMan
             return channel => RabbitSendMessage(channel, serializedMsg, UpdateProperties(propertiesSetter)(channel), routingKey);
         }
 
-        protected void PublishOne<T>(T message, string routingKey, Action<IBasicProperties> applyStaticProperties = null)
+        public void PublishOne<T>(T message, string routingKey, Action<IBasicProperties> applyStaticProperties = null)
         {
             TryApplyOnNewChannel(SendMessageOnChannel(message,routingKey, applyStaticProperties));
         }
 
-        protected void PublishSome<T>(IEnumerable<T> messages, string routingKey, Action<IBasicProperties> applyStaticProperties = null)
+        public void PublishSome<T>(IEnumerable<T> messages, string routingKey, Action<IBasicProperties> applyStaticProperties = null)
         {
             TryApplyOnNewChannel(SendManyMessagesOnChannel(messages,routingKey, applyStaticProperties));
         }
@@ -134,7 +115,7 @@ namespace AliceMQ.MailMan
                 .Aggregate((previous, next) => previous + next);
         }
 
-        protected void CustomPublishSome<T, TP>(IList<IMessageProperty<T, TP>> messagePropertyTuples, string routingKey,
+        public void CustomPublishSome<T, TP>(IList<IMessageProperty<T, TP>> messagePropertyTuples, string routingKey,
             Action<TP, IBasicProperties> applyDynamicProperties)
         {
             PublishSome(messagePropertyTuples.Select(mp => mp.Message), routingKey, 

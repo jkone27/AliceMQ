@@ -79,7 +79,7 @@ namespace AliceMQ.ExtensionMethods
         public static IBasicProperties AssignProperties(this IBasicProperties properties,
             Action<IBasicProperties> propertiesSetter)
         {
-            propertiesSetter(properties);
+            propertiesSetter?.Invoke(properties);
             return properties;
         }
     }

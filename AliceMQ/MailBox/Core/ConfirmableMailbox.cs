@@ -1,6 +1,8 @@
 using System;
 using System.Reactive.Linq;
+using AliceMQ.MailBox.Core.Custom;
 using AliceMQ.MailBox.DeliveryArgs;
+using AliceMQ.MailBox.EndPointArgs;
 using AliceMQ.MailBox.Interface;
 using AliceMQ.MailBox.Message;
 
@@ -11,7 +13,15 @@ namespace AliceMQ.MailBox.Core
     {
         private readonly IAckableMailbox<IMessage> _customMailBox;
 
-        public ConfirmableMailbox(
+
+        public ConfirmableMailbox(EndPoint simpleEndPoint,
+            Sink sink,
+            Func<string, T> deserializer)
+        {
+            _customMailBox = new CustomMailBox<T>(simpleEndPoint, sink, deserializer);
+        }
+
+        protected ConfirmableMailbox(
             IAckableMailbox<IMessage> customMailBox)
         {
             _customMailBox = customMailBox;

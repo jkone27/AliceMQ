@@ -8,31 +8,30 @@ using RabbitMQ.Client.Events;
 namespace AliceMQ.MailBox.Core.Simple
 {
     public class MailBox
-        : MailBoxBase, IAckableMailbox<BasicDeliverEventArgs>
+        : IAckableMailbox<BasicDeliverEventArgs>
     {
-
         private readonly List<ulong> _bagOfAckables;
         private readonly object _lock;
+        private readonly IMailboxBase _baseMailBox;
 
-
-        public MailBox(SimpleEndpointArgs simpleEndpointArgs,
-            MailboxArgs mailboxArgs) : base(simpleEndpointArgs, mailboxArgs, false)
+        public MailBox(EndPoint simpleEndpoint,
+            Sink sink)
         {
+            _baseMailBox = new MailBoxBase(simpleEndpoint, sink, false);
             _bagOfAckables = new List<ulong>();
             _lock = new object();
         }
 
-        public MailBox(
-            EndpointArgs connParams,
-            MailboxArgs mailboxArgs) : base(connParams, mailboxArgs, false)
+        protected MailBox(IMailboxBase mailboxBase)
         {
+            _baseMailBox = mailboxBase;
             _bagOfAckables = new List<ulong>();
             _lock = new object();
         }
 
-        public virtual bool AckRequest(ulong deliveryTag, bool multiple)
+        public bool AckRequest(ulong deliveryTag, bool multiple)
         {
-            return Confirmation(deliveryTag, d => Channel.BasicAck(d, multiple));
+            return Confirmation(deliveryTag, d => _baseMailBox.Channel.BasicAck(d, multiple));
         }
 
         private bool Confirmation(ulong deliveryTag, Action<ulong> action)
@@ -52,15 +51,30 @@ namespace AliceMQ.MailBox.Core.Simple
             return true;
         }
 
-        public virtual bool NackRequest(ulong deliveryTag, bool multiple, bool requeue)
+        public bool NackRequest(ulong deliveryTag, bool multiple, bool requeue)
         {
-            return Confirmation(deliveryTag, d => Channel.BasicNack(d, multiple, requeue));
+            return Confirmation(deliveryTag, d => _baseMailBox.Channel.BasicNack(d, multiple, requeue));
         }
 
-        protected override void PrivateSequenceAction(BasicDeliverEventArgs s)
+        protected void PrivateSequenceAction(BasicDeliverEventArgs s)
         {
             lock (_lock)
                 _bagOfAckables.Add(s.DeliveryTag);
+        }
+
+        public IDisposable Subscribe(IObserver<BasicDeliverEventArgs> observer)
+        {
+            return _baseMailBox.Subscribe(observer);
+        }
+
+        public IDisposable Connect()
+        {
+            return _baseMailBox.Connect();
+        }
+
+        public void Dispose()
+        {
+            _baseMailBox.Dispose();
         }
     }
 }
