@@ -1,9 +1,10 @@
 using System;
 using System.Reactive.Subjects;
 using AliceMQ.MailBox;
-using AliceMQ.MailBox.Core.Simple;
+using AliceMQ.MailBox.Core;
 using AliceMQ.MailBox.EndPointArgs;
 using AliceMQ.MailBox.Interface;
+using AliceMQ.MailMan;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
@@ -23,20 +24,7 @@ namespace AliceMQ.Tests
         }
     }
 
-    public class FakeConfirmableMailbox<T> : MailBox.Core.ConfirmableMailbox<T>
-    {
-        public FakeConfirmableMailbox(EndPoint simpleEndPoint, Sink sink, Func<string, T> deserializer) 
-            : base(simpleEndPoint, sink, deserializer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public FakeConfirmableMailbox(IAckableMailbox<IMessage> customMailBox) : base(customMailBox)
-        {
-        }
-    }
-
-    public class FakeMailbox : MailBox.Core.Simple.MailBox
+    public class FakeMailbox : IAckableMailbox<BasicDeliverEventArgs>
     {
         public IObservable<BasicDeliverEventArgs> Source;
 
@@ -52,9 +40,9 @@ namespace AliceMQ.Tests
             //
         }
 
-        public FakeMailbox(EndPoint simpleEndpoint, Sink sink) : base(simpleEndpoint, sink)
+        public FakeMailbox(IObservable<BasicDeliverEventArgs> source) : base(new EndPoint(), new Sink(new Source("")))
         {
-            throw new NotImplementedException();
+            Source = source;
         }
 
         protected FakeMailbox(IMailboxBase mailboxBase) : base(mailboxBase)

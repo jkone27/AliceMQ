@@ -46,10 +46,13 @@
   <ItemGroup>
     <Compile Include="ExtensionMethods\MessageExtensions.cs" />
     <Compile Include="MailBox\BasicQualityOfService.cs" />
-    <Compile Include="MailBox\Core\Custom\AutoCustomMailBox.cs" />
-    <Compile Include="MailBox\Core\Simple\AutoMailBox.cs" />
-    <Compile Include="MailBox\Core\Custom\CustomMailBoxBase.cs" />
-    <Compile Include="MailBox\Core\Simple\MailBoxBase.cs" />
+    <Compile Include="MailBox\Core\IMailboxBase.cs" />
+    <Compile Include="MailBox\Core\IMailboxContext.cs" />
+    <Compile Include="MailBox\Core\MailBoxBase.cs" />
+    <Compile Include="MailBox\Core\MailboxChannel.cs" />
+    <Compile Include="MailBox\Core\MailboxContext.cs" />
+    <Compile Include="MailBox\Core\MailboxDeadLettering.cs" />
+    <Compile Include="MailBox\Core\MailboxQueue.cs" />
     <Compile Include="MailBox\EndPointArgs\INetworkRecoveryInfo.cs" />
     <Compile Include="MailBox\Message\Failure.cs" />
     <Compile Include="MailBox\Interface\IResult.cs" />
@@ -67,9 +70,6 @@
     <Compile Include="ExtensionMethods\ActionExtensions.cs" />
     <Compile Include="ExtensionMethods\BasicPropertiesExtensions.cs" />
     <Compile Include="MailBox\Sink.cs" />
-    <Compile Include="MailBox\Core\ConfirmableMailbox.cs" />
-    <Compile Include="MailBox\Core\Simple\MailBox.cs" />
-    <Compile Include="MailBox\Core\Custom\CustomMailBox.cs" />
     <Compile Include="MailBox\DeliveryArgs\DeliveryArgs.cs" />
     <Compile Include="MailBox\ManualAckEventArgs.cs" />
     <Compile Include="MailBox\Message\ConfirmableEnvelope.cs" />

@@ -2,8 +2,10 @@
 using System.Reactive.Linq;
 using System.Text;
 using AliceMQ.ExtensionMethods;
+using AliceMQ.MailBox;
 using AliceMQ.MailBox.Core;
-using AliceMQ.MailBox.Core.Custom;
+using AliceMQ.MailBox.EndPointArgs;
+using AliceMQ.MailMan;
 using RabbitMQ.Client.Events;
 using Microsoft.Reactive.Testing;
 using Moq;
@@ -125,6 +127,7 @@ namespace AliceMQ.Tests
                 .Interval(TimeSpan.FromTicks(1), s)
                 .Select(z => NewArgs(WrongPayload));
 
+            var endPoint = new EndPoint();
             var mb = new FakeMailbox(src);
             var c = new FakeCustomMailbox<TestMessage>(mb, JsonConvert.DeserializeObject<TestMessage>);
             var conf = new FakeConfirmableMailbox<TestMessage>(c);
@@ -191,7 +194,6 @@ namespace AliceMQ.Tests
             c.Connect();
             s.AdvanceBy(20);
             Assert.True(received == 20);
-            Assert.True(mb.Acks == 20);
         }
 
         [Fact]
@@ -216,7 +218,6 @@ namespace AliceMQ.Tests
 
             s.AdvanceBy(1);
             Assert.True(received);
-            Assert.True(mb.Nacks == 1);
         }
 
         public byte[] WrongPayload => Encoding.UTF8.GetBytes("{ \"code\": \"this is a wrong code, should be int\" }");
@@ -258,7 +259,6 @@ namespace AliceMQ.Tests
             s.AdvanceBy(1);
             Assert.False(received);
             Assert.True(exception);
-            Assert.True((acks  && mb.Acks == 1) || (!acks && mb.Nacks == 1));
         }
     }
 

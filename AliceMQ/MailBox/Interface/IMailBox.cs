@@ -8,7 +8,7 @@ namespace AliceMQ.MailBox.Interface
     {
     }
 
-    public interface IMailBox<out T> : IConnectableObservable<T>, IDisposable
+    public interface IMailBox<out T> : IObservable<T>
     {
     }
 

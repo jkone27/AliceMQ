@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Text;
 using System.Threading.Tasks;
-using AliceMQ.ExtensionMethods;
 using AliceMQ.MailBox;
 using AliceMQ.MailBox.Core;
-using AliceMQ.MailBox.Core.Custom;
-using AliceMQ.MailBox.Core.Simple;
 using AliceMQ.MailBox.EndPointArgs;
 using AliceMQ.MailMan;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace SampleApplication
 {
@@ -40,7 +36,9 @@ namespace SampleApplication
             //first message published creates exchange if non existent
             p.PublishOne(new Msg(-1),"");
 
-            var mb = new MailBox(endPoint, sink);
+            var mb = new MailBoxBase(endPoint, sink);
+
+            //var mb = new MailBox(endPoint, sink);
 
             //var custom = new CustomMailBox<Msg>(
             //    endPoint,
@@ -55,9 +53,9 @@ namespace SampleApplication
             Task.Run(() => Console.WriteLine("waiting for messages.."));
 
 
-            mb.Subscribe(am =>
+            var d = mb.Subscribe(am =>
             {
-                Console.WriteLine("A - " + Encoding.UTF8.GetString(am.Body));
+                Console.WriteLine("A - " + Encoding.UTF8.GetString(am.EventArgs.Body));
             });
 
             //custom.Subscribe(am =>
@@ -87,9 +85,6 @@ namespace SampleApplication
 
             //});
 
-            var d1 = mb.Connect();
-            //var d2 = custom.Connect();
-            //var d3 = confirmable.Connect();
 
             var exit = ConsoleKey.N;
             var count = 0;
@@ -100,10 +95,8 @@ namespace SampleApplication
                 exit = Console.ReadKey().Key;
             }
 
-            //confirmable.Dispose();
-            d1.Dispose();
-            //d2.Dispose();
-            //d3.Dispose();
+            d.Dispose();
+
         }
     }
 }
