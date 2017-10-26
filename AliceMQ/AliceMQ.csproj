@@ -61,26 +61,18 @@
     <Compile Include="MailBox\Message\Success.cs" />
     <Compile Include="MailBox\MailboxException.cs" />
     <Compile Include="MailBox\MailboxSetupException.cs" />
-    <Compile Include="MailBox\DeliveryArgs\AcceptDeliveryArgs.cs" />
-    <Compile Include="MailBox\DeliveryArgs\RejectDeliveryArgs.cs" />
-    <Compile Include="MailBox\Interface\IAckableConsumer.cs" />
-    <Compile Include="MailBox\Interface\IMailBox.cs" />
     <Compile Include="MailBox\Message\AlreadyConfirmedMessageException.cs" />
     <Compile Include="MailBox\Message\Error.cs" />
-    <Compile Include="ExtensionMethods\ActionExtensions.cs" />
     <Compile Include="ExtensionMethods\BasicPropertiesExtensions.cs" />
     <Compile Include="MailBox\Sink.cs" />
-    <Compile Include="MailBox\DeliveryArgs\DeliveryArgs.cs" />
     <Compile Include="MailBox\ManualAckEventArgs.cs" />
     <Compile Include="MailBox\Interface\IConfirmableMessage.cs" />
     <Compile Include="MailBox\Message\Ok.cs" />
     <Compile Include="MailBox\EndPointArgs\EndPoint.cs" />
-    <Compile Include="ExtensionMethods\ExceptionExtensions.cs" />
     <Compile Include="MailBox\QueueBind.cs" />
     <Compile Include="MailMan\Exchange.cs" />
     <Compile Include="MailMan\Interface\IMailman.cs" />
     <Compile Include="MailMan\Interface\IMessageProperty.cs" />
-    <Compile Include="MailMan\MessageProperty.cs" />
     <Compile Include="MailMan\SetupException.cs" />
     <Compile Include="MailMan\QueueArgs.cs" />
     <Compile Include="MailMan\RabbitMailmanLogic.cs" />
@@ -93,6 +85,7 @@
     <None Include="app.config" />
     <None Include="paket.references" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
