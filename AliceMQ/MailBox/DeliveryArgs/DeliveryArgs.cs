@@ -2,7 +2,7 @@ namespace AliceMQ.MailBox.DeliveryArgs
 {
     public abstract class DeliveryArgs
     {
-        public ulong DeliveryTag { get; private set; }
+        public ulong DeliveryTag { get; }
 
         protected DeliveryArgs(ulong deliveryTag)
         {

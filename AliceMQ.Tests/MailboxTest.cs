@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 using AliceMQ.ExtensionMethods;
-using AliceMQ.MailBox;
 using AliceMQ.MailBox.Core;
-using AliceMQ.MailBox.EndPointArgs;
-using AliceMQ.MailMan;
 using RabbitMQ.Client.Events;
 using Microsoft.Reactive.Testing;
 using Moq;
@@ -59,17 +57,60 @@ namespace AliceMQ.Tests
 
             var src = Observable
                 .FromEventPattern<BasicDeliverEventArgs>(testEvent, nameof(testEvent.FakeEvent))
-                .Select(e => e.EventArgs);
+                .Select(e => new MailboxContext{ Channel = null, EventArgs = e.EventArgs});
 
-            var c = new FakeAutoMailbox(src);
+            var c = new FakeMailbox(src, autoAck: true);
             c.Subscribe(m => 
                 received = true);
-
-            c.Connect();
 
             testEvent.Raise(NewArgs());
 
             Assert.True(received);
+        }
+
+        [Fact]
+        public void Mailbox_ReceiveOne_OnError()
+        {
+            var received = false;
+            var onError = false;
+            var s = new TestScheduler();
+
+            var src = new Subject<IMailboxContext>();
+            src.OnError(new Exception("ex"));
+
+            var c = new FakeMailbox(src, autoAck: true);
+            c.Subscribe(m =>
+                received = true,
+                e => onError = true
+                );
+
+            s.AdvanceBy(1);
+            Assert.False(received);
+            Assert.True(onError);
+        }
+
+        [Fact]
+        public void Mailbox_ReceiveOne_OnComplete()
+        {
+            var received = false;
+            var complete = false;
+            var onError = false;
+
+            var s = new TestScheduler();
+            var src = new Subject<IMailboxContext>();
+            src.OnCompleted();
+
+            var c = new FakeMailbox(src, autoAck: true);
+            c.Subscribe(m =>
+                received = true,
+                _ => {},
+                () => complete = true);
+
+            s.AdvanceBy(1);
+
+            Assert.True(complete);
+            Assert.False(onError);
+            Assert.False(received);
         }
 
         [Fact]
@@ -79,12 +120,11 @@ namespace AliceMQ.Tests
             var s = new TestScheduler();
             var src = Observable
                 .Interval(TimeSpan.FromTicks(1), s)
-                .Select(z => NewArgs());
+                .Select(z => new MailboxContext { Channel = null, EventArgs =  NewArgs() });
 
-            var c = new AutoCustomMailBox<string>(new FakeAutoMailbox(src), str => str);
+            var c = new FakeCustomMailbox<string>(new FakeMailbox(src, autoAck: true), str => str);
 
             c.Subscribe(m => received = true);
-            c.Connect();
             s.AdvanceBy(1);
             Assert.True(received);
         }
@@ -97,10 +137,9 @@ namespace AliceMQ.Tests
             var s = new TestScheduler();
             var src = Observable
                 .Interval(TimeSpan.FromTicks(1), s)
-                .Select(z => NewArgs(WrongPayload));
+                .Select(z => new MailboxContext { Channel = null, EventArgs = NewArgs(WrongPayload)});
 
-            var mb = new FakeAutoMailbox(src);
-            var c = new AutoCustomMailBox<TestMessage>(mb, JsonConvert.DeserializeObject<TestMessage>);
+            var c = new FakeCustomMailbox<TestMessage>(new FakeMailbox(src, autoAck: true), JsonConvert.DeserializeObject<TestMessage>);
             c.Subscribe(m =>
             {
                 if (m.IsOk<TestMessage>())
@@ -110,111 +149,86 @@ namespace AliceMQ.Tests
                     ex = m.AsError().Ex;
                 }
             });
-            c.Connect();
 
             s.AdvanceBy(1);
             Assert.True(received == null);
             Assert.True(ex != null);
         }
 
-        [Fact]
-        public void ConfirmableMailbox_ReceiveOne_UnableToDeserialize()
-        {
-            var received = false;
-            Exception ex = null;
-            var s = new TestScheduler();
-            var src = Observable
-                .Interval(TimeSpan.FromTicks(1), s)
-                .Select(z => NewArgs(WrongPayload));
-
-            var endPoint = new EndPoint();
-            var mb = new FakeMailbox(src);
-            var c = new FakeCustomMailbox<TestMessage>(mb, JsonConvert.DeserializeObject<TestMessage>);
-            var conf = new FakeConfirmableMailbox<TestMessage>(c);
-
-            conf.Subscribe(m =>
-                {
-                    if(m.IsOk())
-                        received = true;
-                    else
-                    {
-                        ex = m.Exception();
-                    }
-                });
-            conf.Connect();
-
-            s.AdvanceBy(1);
-            Assert.False(received);
-            Assert.True(ex != null);
-        }
-
+      
 
         [Fact]
-        public void ConfirmableMailbox_ReceiveOne_andAck()
+        public void CustomMailbox_ReceiveOne_andAck()
         {
             var received = false;
             var s = new TestScheduler();
+
+            var channel = new Mock<IModel>();
+            channel.Setup(x => x.BasicAck(It.IsAny<ulong>(), It.IsAny<bool>()));
+
             var src = Observable
                 .Interval(TimeSpan.FromTicks(1), s)
-                .Select(z => NewArgs());
+                .Select(z => new MailboxContext { Channel = channel.Object, EventArgs = NewArgs()});
 
             var mb = new FakeMailbox(src);
             var custom = new FakeCustomMailbox<string>(mb, str => str);
-            var c = new FakeConfirmableMailbox<TestMessage>(custom);
 
-            c.Subscribe(m =>
+            custom.Subscribe(m =>
                 { received = true;
-                    m.Accept();
+                    m.Confirm();
                 });
 
-            c.Connect();
             s.AdvanceBy(1);
             Assert.True(received);
         }
 
         [Fact]
-        public void ConfirmableMailbox_ReceiveMany_AcksThemAll()
+        public void CustomMailbox_ReceiveMany_AcksThemAll()
         {
             var received = 0;
             var s = new TestScheduler();
+
+            var channel = new Mock<IModel>();
+            channel.Setup(x => x.BasicAck(It.IsAny<ulong>(), It.IsAny<bool>()));
+
             var src = Observable
                 .Interval(TimeSpan.FromTicks(1), s)
-                .Select(z => NewArgs());
+                .Select(z => new MailboxContext { Channel = channel.Object, EventArgs = NewArgs()});
 
             var mb = new FakeMailbox(src);
             var custom = new FakeCustomMailbox<string>(mb, str => str);
-            var c = new FakeConfirmableMailbox<TestMessage>(custom);
 
-            c.Subscribe(m =>
+            custom.Subscribe(m =>
             {
                 received++;
-                m.Accept();
+                m.Confirm();
             });
 
-            c.Connect();
             s.AdvanceBy(20);
             Assert.True(received == 20);
         }
 
         [Fact]
-        public void ConfirmableMailbox_ReceiveOne_andNack()
+        public void CustomMailbox_ReceiveOne_andNack()
         {
             var received = false;
             var s = new TestScheduler();
+
+            var channel = new Mock<IModel>();
+            channel.Setup(x => x.BasicNack(It.IsAny<ulong>(), It.IsAny<bool>(), It.IsAny<bool>()));
+
             var src = Observable
                 .Interval(TimeSpan.FromTicks(1), s)
-                .Select(z => NewArgs());
+                .Select(z => new MailboxContext { Channel = channel.Object, EventArgs = NewArgs()});
 
             var mb = new FakeMailbox(src);
             var typed = new FakeCustomMailbox<string>(mb, str => str);
-            var c = new FakeConfirmableMailbox<TestMessage>(typed);
 
-            c.Subscribe(m =>
+            typed.Subscribe(m =>
             {
                 received = true;
                 m.Reject();
             });
-            c.Connect();
 
             s.AdvanceBy(1);
             Assert.True(received);
@@ -225,36 +239,39 @@ namespace AliceMQ.Tests
         [Theory,
             InlineData(true),
             InlineData(false)]
-        public void ConfirmableMailbox_SubscribeOnError_Acks(bool acks)
+        public void CustomMailbox_SubscribeOnError_Acks(bool acks)
         {
             var received = false;
             var exception = false;
             var s = new TestScheduler();
+
+            var channel = new Mock<IModel>();
+            channel.Setup(x => x.BasicNack(It.IsAny<ulong>(), It.IsAny<bool>(), It.IsAny<bool>()));
+            channel.Setup(x => x.BasicAck(It.IsAny<ulong>(), It.IsAny<bool>()));
+
             var src = Observable
                 .Interval(TimeSpan.FromTicks(1), s)
-                .Select(z => NewArgs(WrongPayload));
+                .Select(z => new MailboxContext { Channel = channel.Object, EventArgs = NewArgs(WrongPayload)});
 
             var mb = new FakeMailbox(src);
             var typed = new FakeCustomMailbox<TestMessage>(mb, JsonConvert.DeserializeObject<TestMessage>);
-            var c = new FakeConfirmableMailbox<TestMessage>(typed);
 
-            c.Subscribe(m =>
+            typed.Subscribe(m =>
             {
-                if (m.IsOk())
+                if (m.IsOk<TestMessage>())
                 {
                     received = true;
-                    m.Accept();
+                    m.Confirm();
                 }
                 else
                 {
                     exception = true;
                     if(acks)
-                        m.Accept();
+                        m.Confirm();
                     else
                         m.Reject();
                 }  
             });
-            c.Connect();
 
             s.AdvanceBy(1);
             Assert.False(received);

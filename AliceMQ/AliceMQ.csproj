@@ -34,6 +34,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.ServiceModel.Activities" />
     <Reference Include="System.Windows" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -55,7 +56,7 @@
     <Compile Include="MailBox\Core\MailboxQueue.cs" />
     <Compile Include="MailBox\EndPointArgs\INetworkRecoveryInfo.cs" />
     <Compile Include="MailBox\Message\Failure.cs" />
-    <Compile Include="MailBox\Interface\IResult.cs" />
+    <Compile Include="MailBox\Interface\IMessage.cs" />
     <Compile Include="MailBox\Interface\IConfirmableEnvelope.cs" />
     <Compile Include="MailBox\Message\Success.cs" />
     <Compile Include="MailBox\MailboxException.cs" />
@@ -66,15 +67,12 @@
     <Compile Include="MailBox\Interface\IMailBox.cs" />
     <Compile Include="MailBox\Message\AlreadyConfirmedMessageException.cs" />
     <Compile Include="MailBox\Message\Error.cs" />
-    <Compile Include="MailBox\Interface\IConfirmableDelivery.cs" />
     <Compile Include="ExtensionMethods\ActionExtensions.cs" />
     <Compile Include="ExtensionMethods\BasicPropertiesExtensions.cs" />
     <Compile Include="MailBox\Sink.cs" />
     <Compile Include="MailBox\DeliveryArgs\DeliveryArgs.cs" />
     <Compile Include="MailBox\ManualAckEventArgs.cs" />
-    <Compile Include="MailBox\Message\ConfirmableEnvelope.cs" />
     <Compile Include="MailBox\Interface\IConfirmableMessage.cs" />
-    <Compile Include="MailBox\Interface\IMessage.cs" />
     <Compile Include="MailBox\Message\Ok.cs" />
     <Compile Include="MailBox\EndPointArgs\EndPoint.cs" />
     <Compile Include="ExtensionMethods\ExceptionExtensions.cs" />

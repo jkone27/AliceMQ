@@ -1,9 +1,8 @@
-using RabbitMQ.Client.Events;
-
-namespace AliceMQ.MailBox.Interface
+﻿namespace AliceMQ.MailBox.Interface
 {
-
-    public interface IMessage : IResult<BasicDeliverEventArgs>
+    public interface IMessage
     {
+        void Confirm();
+        void Reject();
     }
 }

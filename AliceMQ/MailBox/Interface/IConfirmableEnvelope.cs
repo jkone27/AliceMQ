@@ -1,5 +1,5 @@
 using System;
-using RabbitMQ.Client.Events;
+using AliceMQ.MailBox.Core;
 
 namespace AliceMQ.MailBox.Interface
 {
@@ -9,6 +9,6 @@ namespace AliceMQ.MailBox.Interface
         bool IsError();
         T Content();
         Exception Exception();
-        BasicDeliverEventArgs RawData { get; }
+        MailboxContext Context { get; }
     }
 }

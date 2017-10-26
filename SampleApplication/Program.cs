@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Text;
 using System.Threading.Tasks;
+using AliceMQ.ExtensionMethods;
 using AliceMQ.MailBox;
 using AliceMQ.MailBox.Core;
 using AliceMQ.MailBox.EndPointArgs;
@@ -36,66 +36,48 @@ namespace SampleApplication
             //first message published creates exchange if non existent
             p.PublishOne(new Msg(-1),"");
 
-            var mb = new MailBoxBase(endPoint, sink);
-
-            //var mb = new MailBox(endPoint, sink);
-
-            //var custom = new CustomMailBox<Msg>(
-            //    endPoint,
-            //    sink,
-            //    s => JsonConvert.DeserializeObject<Msg>(s, serialization));
-
-            //var confirmable = new ConfirmableMailbox<Msg>(
-            //    endPoint, 
-            //    sink,
-            //    s => JsonConvert.DeserializeObject<Msg>(s, serialization));
+            var sfm = new CustomMailbox<Msg>(endPoint, sink, s => JsonConvert.DeserializeObject<Msg>(s, serialization));
 
             Task.Run(() => Console.WriteLine("waiting for messages.."));
 
 
-            var d = mb.Subscribe(am =>
+            //var d = mb.Subscribe(am =>
+            //{
+            //    Console.WriteLine("A - " + Encoding.UTF8.GetString(am.EventArgs.Body));
+            //    am.Channel.BasicAck(am.EventArgs.DeliveryTag, false);
+            //});
+
+            var z1 = sfm.Subscribe(am =>
             {
-                Console.WriteLine("A - " + Encoding.UTF8.GetString(am.EventArgs.Body));
-            });
-
-            //custom.Subscribe(am =>
-            //{
-            //    if (am.IsOk<Msg>())
-            //    {
-            //        Console.WriteLine("B - " + am.AsOk<Msg>().Message.Bla);
-            //    }
-            //    else
-            //    {
-            //        Console.WriteLine("B - error: " + am.AsError().Ex);
-            //    }
-            //});
-
-            //confirmable.Subscribe(am =>
-            //{
-            //    if (am.IsOk())
-            //    {
-            //        Console.WriteLine("C - " + am.Content().Bla);
-            //        am.Accept();
-            //    }
-            //    else
-            //    {
-            //        Console.WriteLine("C - error." + am.Exception());
-            //        am.Reject();
-            //    }
-
-            //});
-
+                if (am.IsOk<Msg>())
+                {
+                    var msg = am.AsOk<Msg>().Message;
+                    Console.WriteLine("ok - " + msg.Bla);
+                    am.Confirm();
+                }
+                else
+                {
+                    Console.WriteLine("error - " + am.AsError().Ex);
+                    am.Confirm();
+                }
+                    
+            }, 
+            ex => Console.WriteLine("COMPLETE ERROR"), 
+            () => Console.WriteLine("COMPLETE"));
 
             var exit = ConsoleKey.N;
             var count = 0;
             while (exit != ConsoleKey.Y)
             {
-                p.PublishOne(new Msg(count++), "");
-                //p.PublishOne("{ wrong message }", ""); //publish a broken message to test exception handling
+                if(count++ % 2 != 0)
+                    p.PublishOne(new Msg(count), "");
+                else
+                    p.PublishOne("{ wrong message }", ""); //publish a broken message to test exception handling
                 exit = Console.ReadKey().Key;
             }
 
-            d.Dispose();
+            //d.Dispose();
+            z1.Dispose();
 
         }
     }

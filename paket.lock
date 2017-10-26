@@ -19,7 +19,7 @@ NUGET
     Microsoft.Diagnostics.Tracing.EventSource.Redist (1.1.28) - framework: >= net451
     Microsoft.DotNet.InternalAbstractions (1.0.0) - version_in_path: true, framework: netcore10
     Microsoft.Extensions.DependencyModel (2.0.0) - version_in_path: true, framework: netcore10
-    Microsoft.Net.Compilers (2.3.2)
+    Microsoft.Net.Compilers (2.4)
     Microsoft.NET.Test.Sdk (15.3.0) - version_in_path: true, framework: netcore10
       Microsoft.TestPlatform.TestHost (>= 15.3)
     Microsoft.NETCore.Platforms (2.0) - framework: >= netstandard10

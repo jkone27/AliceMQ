@@ -2,13 +2,15 @@
 
 namespace AliceMQ.MailBox.Message
 {
-    public abstract class Success<T> : IResult<T>
+    public abstract class Success<T> : IMessage
     {
-        protected Success(T data)
+        protected Success(T context)
         {
-            RawData = data;
+            Context = context;
         }
 
-        public T RawData { get; }
+        protected T Context { get; }
+        public abstract void Confirm();
+        public abstract void Reject();
     }
 }

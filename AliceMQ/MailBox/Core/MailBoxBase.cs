@@ -1,15 +1,58 @@
 using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using AliceMQ.ExtensionMethods;
 using AliceMQ.MailBox.EndPointArgs;
+using AliceMQ.MailBox.Interface;
+using AliceMQ.MailBox.Message;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
 namespace AliceMQ.MailBox.Core
 {
+    public class CustomMailbox<T> : IObservable<IMessage>
+    {
+        private readonly Func<string, T> _serializer;
+        private readonly IMailboxBase _baseMailbox;
+
+        public CustomMailbox(EndPoint endPoint, Sink sink, Func<string, T> serializer)
+        {
+            _serializer = serializer;
+            _baseMailbox = new MailBoxBase(endPoint, sink);
+        }
+
+        protected CustomMailbox(IMailboxBase mailboxBase, Func<string, T> serializer)
+        {
+            _baseMailbox = mailboxBase;
+            _serializer = serializer;
+        }
+
+        public IDisposable Subscribe(IObserver<IMessage> observer)
+        {
+            return _baseMailbox.Select<IMailboxContext, IMessage>(s =>
+            {
+                try
+                {
+                    var decodedString = Payload(s.EventArgs);
+                    return new Ok<T>(_serializer(decodedString), s, _baseMailbox.Sink.ConfirmationPolicy.Multiple, _baseMailbox.Sink.ConfirmationPolicy.Requeue);
+                }
+                catch (Exception ex)
+                {
+                    return new Error(s, ex, _baseMailbox.Sink.ConfirmationPolicy.Multiple, _baseMailbox.Sink.ConfirmationPolicy.Requeue);
+                }
+            })
+            .Subscribe(observer.OnNext, observer.OnError, observer.OnCompleted);
+        }
+
+        private static string Payload(BasicDeliverEventArgs e)
+        {
+            return e.BasicProperties.GetEncoding().GetString(e.Body);
+        }
+    }
+
     public sealed class MailBoxBase: IMailboxBase
     {
-        public readonly Sink Sink;
+        public Sink Sink { get; }
         public string ConnectionUrl { get; }
         public string QueueName => Sink.Source.QueueArgs.QueueName;
         public string ExchangeName => Sink.Source.Exchange.ExchangeName;
@@ -36,7 +79,7 @@ namespace AliceMQ.MailBox.Core
             _deadLettering = new MailboxDeadLettering(sink);
         }
 
-        public IDisposable Subscribe(IObserver<MailboxContext> observer)
+        public IDisposable Subscribe(IObserver<IMailboxContext> observer)
         {
             var utility = SetupEnvironment();
             var consumer = new EventingBasicConsumer(utility.Channel);
@@ -50,17 +93,16 @@ namespace AliceMQ.MailBox.Core
                     Channel = utility.Channel
                 });
 
-            var subscription = ob.Subscribe(observer);
+            var subscription = ob.Subscribe(observer.OnNext, observer.OnError, observer.OnCompleted);
+            utility.CompositeDisposable.Add(subscription);
 
             StartConsumer(utility.Channel, consumer);
-
-            utility.CompositeDisposable.Add(subscription);
 
             return utility.CompositeDisposable;
         }
 
         private void StartConsumer(IModel channel, EventingBasicConsumer consumer) =>
-            channel.BasicConsume(Sink.Source.QueueArgs.QueueName, Sink.AutoAck, consumer);
+            channel.BasicConsume(Sink.Source.QueueArgs.QueueName, Sink.ConfirmationPolicy.AutoAck, consumer);
 
         private Utility SetupEnvironment()
         {

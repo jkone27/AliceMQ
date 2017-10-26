@@ -3,13 +3,20 @@ using AliceMQ.MailMan;
 
 namespace AliceMQ.MailBox
 {
+
+    public class ConfirmationPolicy
+    {
+        public bool AutoAck { get; set; }
+        public bool Multiple { get; set; }
+        public bool Requeue { get; set; }
+    }
     public class Sink
     {
         public string DeadLetterExchangeName { get; set; } //must be settable at runtime
         public IDictionary<string, object> QueueDeclareArguments { get; set; } //must be settable at runtime
         public Source Source { get; set; }
         public BasicQualityOfService BasicQualityOfService { get; }
-        public bool AutoAck { get; }
+        public ConfirmationPolicy ConfirmationPolicy { get; }
 
         public QueueBind QueueBind { get; }
 
@@ -21,14 +28,14 @@ namespace AliceMQ.MailBox
             IDictionary<string, object> queueBindArguments = null,
             ushort prefetchCount = 1,
             bool global = false,
-            bool autoAck = false)
+            ConfirmationPolicy confirmationPolicy = null)
         {
             QueueDeclareArguments = queueDeclareArguments ?? new Dictionary<string, object>();
             QueueBind = new QueueBind(queueBindArguments ?? new Dictionary<string, object>(), routingKey);
             Source = source;
             DeadLetterExchangeName = deadLetterExchangeName;
             BasicQualityOfService = new BasicQualityOfService(prefetchCount, global);
-            AutoAck = autoAck;
+            ConfirmationPolicy = confirmationPolicy ?? new ConfirmationPolicy();
         }
 
         

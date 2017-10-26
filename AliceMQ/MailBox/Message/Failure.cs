@@ -3,15 +3,17 @@ using AliceMQ.MailBox.Interface;
 
 namespace AliceMQ.MailBox.Message
 {
-    public abstract class Failure<T> : IResult<T>
+    public abstract class Failure<T> : IMessage
     {
         protected Failure(T data, Exception ex)
         {
-            RawData = data;
+            Context = data;
             Ex = ex;
         }
 
         public Exception Ex { get; }
-        public T RawData { get; }
+        protected T Context { get; }
+        public abstract void Confirm();
+        public abstract void Reject();
     }
 }

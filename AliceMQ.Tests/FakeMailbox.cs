@@ -1,83 +1,50 @@
 using System;
-using System.Reactive.Subjects;
 using AliceMQ.MailBox;
 using AliceMQ.MailBox.Core;
 using AliceMQ.MailBox.EndPointArgs;
-using AliceMQ.MailBox.Interface;
 using AliceMQ.MailMan;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 
 namespace AliceMQ.Tests
 {
-    public class FakeCustomMailbox<T> : MailBox.Core.Custom.CustomMailBox<T>
+    public class FakeCustomMailbox<T> : CustomMailbox<T>
     {
-        public FakeCustomMailbox(EndPoint simpleEndPoint, Sink sink, Func<string, T> deserializer) 
+        protected FakeCustomMailbox(EndPoint simpleEndPoint, Sink sink, Func<string, T> deserializer) 
             : base(simpleEndPoint, sink, deserializer)
         {
             throw new NotImplementedException();
         }
 
-        public FakeCustomMailbox(IAckableMailbox<BasicDeliverEventArgs> mailbox, Func<string, T> deserializer) 
+        public FakeCustomMailbox(IMailboxBase mailbox, Func<string, T> deserializer) 
             : base(mailbox, deserializer)
         {
         }
     }
 
-    public class FakeMailbox : IAckableMailbox<BasicDeliverEventArgs>
+    public class FakeMailbox : IMailboxBase
     {
-        public IObservable<BasicDeliverEventArgs> Source;
+        public IObservable<IMailboxContext> Source;
+        private readonly bool _autoAck;
 
-        protected IObservable<BasicDeliverEventArgs> ConsumerReceivedObservable => Source;
+        protected IObservable<IMailboxContext> ConsumerReceivedObservable => Source;
 
-        protected void StartConsumer()
-        {
-            //
-        }
-
-        protected void SetupEnvironment()
-        {
-            //
-        }
-
-        public FakeMailbox(IObservable<BasicDeliverEventArgs> source) : base(new EndPoint(), new Sink(new Source("")))
+        public FakeMailbox(IObservable<IMailboxContext> source, bool autoAck = false)
         {
             Source = source;
+            _autoAck = autoAck;
         }
 
-        protected FakeMailbox(IMailboxBase mailboxBase) : base(mailboxBase)
+        public IDisposable Subscribe(IObserver<IMailboxContext> observer)
         {
+            return Source.Subscribe(observer);
         }
-    }
 
-    public class FakeBase : IMailboxBase
-    {
-        private readonly IConnectableObservable<BasicDeliverEventArgs> _fake;
-
-        public FakeBase(IConnectableObservable<BasicDeliverEventArgs> fake)
+        public string ConnectionUrl => "";
+        public string QueueName => "";
+        public string ExchangeName => "";
+        public string DeadLetterExchangeName => "";
+        public Sink Sink => new Sink(new Source(""), confirmationPolicy: new ConfirmationPolicy
         {
-            _fake = fake;
-        }
-
-        public void Dispose()
-        {
-            //
-        }
-
-        public IDisposable Subscribe(IObserver<BasicDeliverEventArgs> observer)
-        {
-            return _fake.Subscribe(observer);
-        }
-
-        public IDisposable Connect()
-        {
-            return _fake.Connect();
-        }
-
-        public string ConnectionUrl { get; }
-        public string QueueName { get; }
-        public string ExchangeName { get; }
-        public string DeadLetterExchangeName { get; }
-        public IModel Channel { get; }
+            AutoAck = _autoAck
+        });
     }
 }
