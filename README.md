@@ -13,40 +13,41 @@ Usage of a mailman is dead simple:
 ```cs
 using AliceMQ.MailMan; //..
 
-var endpointArgs = new EndpointArgs();
-var sourceArgs = new SourceArgs("A", "A.q");
+var source = new Source("A", "A.q");
+var endPoint = new EndPoint();
+var sink = new Sink(source);
 
 var serialization = new JsonSerializerSettings
-{
-    MissingMemberHandling = MissingMemberHandling.Ignore,
-    ContractResolver = new DefaultContractResolver
-        {
-            NamingStrategy = new SnakeCaseNamingStrategy()
-        }
-};
+            {
+                MissingMemberHandling = MissingMemberHandling.Error
+            };
 
-var p = new Mailman(sourceArgs.ExchangeArgs, s => JsonConvert.SerializeObject(s, serialization));
-p.PublishOne(new Msg("one"), "");
+ var p = new Mailman(endPoint, source.Exchange, s => JsonConvert.SerializeObject(s, serialization));
+
+//first message published creates exchange if non existent
+p.PublishOne(new Msg(-1),"");
 ```
 
 Now let's see the simplest form of consumer, which is just a thin layer from the real MQ system...
 
 ## Mailbox (Consumer)
 
-Consumer subscription is identical for every type,
-giving an istance of an IConnectableObservable<T>, which must be started after subscriptions invoking its Connect() method (and disposing that after usage).
+Consumer subscription is identical for every type, giving an istance of an IObservable<T> (rx).
 
 ```cs
 using AliceMQ.Mailbox;
 
-var connectionFactoryParameters = new ConnectionFactoryParams();
-var mailboxArgs = new MailboxArgs(sourceArgs);
+var mb = new SimpleMailbox(endPoint, sink);
 
-var mb = new MailBox(connectionFactoryParameters, mailboxArgs, autoAck: false);
-mb.Subscribe(OnNext, OnError, OnComplete);
-var d = mb.Connect();
+var d = mb.Subscribe(am =>
+{
+    Console.WriteLine("A - " + Encoding.UTF8.GetString(am.EventArgs.Body));
+    am.Channel.BasicAck(am.EventArgs.DeliveryTag, false);
+});
+
 //...
 d.Dispose();
+
 ```
 
 ## CustomMailBox (Typed Consumer)
@@ -54,63 +55,27 @@ d.Dispose();
 let's consider an example DTO class Msg, the typed consumer is build upon the common consumer, which is enhanced with message body deserialization into an istance of a generic T type.
 
 ```cs
-var serialization = new JsonSerializerSettings
-{
-    MissingMemberHandling = MissingMemberHandling.Ignore,
-    ContractResolver = new DefaultContractResolver
-        {
-            NamingStrategy = new SnakeCaseNamingStrategy()
-        }
-};
+var sfm = new Mailbox<Msg>(endPoint, sink, s => JsonConvert.DeserializeObject<Msg>(s, serialization));
 
-var custom = new CustomMailBox<Msg>(mb, s => JsonConvert.DeserializeObject<Msg>(s, serialization));
-
-custom.Subscribe(am =>
+var d = sfm.Subscribe(am =>
 {
     if (am.IsOk<Msg>())
-        Console.WriteLine("ok - " + am.AsOk<Msg>().Message.Bla);
-    else
-        Console.WriteLine("error - " + am.AsError().Ex);
-});
-var d = custom.Connect();
-//...
-d.Dispose();
-```
-
-## ConfirmableMailbox (observable of ConfirmableEnvelope)
-
-the ConfirmableMailbox is build upon the typed consumer, and adds the ability to consume ConfirmableEnvelope<T> (ackable) messages, which have the ability to notify their observing consumer when a message wants to be accepted (acked) or rejected (nacked), decoupling message delivery confirmation from the consumer.
-
-```cs
-var confirmable = new ConfirmableMailbox(custom);
-
-confirmable.Subscribe(am =>
-{
-    if (am.IsOk())
     {
-        Console.WriteLine("C - " + am.Content().Bla);
-        am.Accept();
+        var msg = am.AsOk<Msg>().Message;
+        Console.WriteLine("ok - " + msg.Bla);
+        am.Confirm();
     }
     else
     {
-        Console.WriteLine("C - error." + am.Exception());
-        am.Reject();
+        Console.WriteLine("error - " + am.AsError().Ex.Message);
+        am.Confirm();
     }
-});
-var d = confirmable.Connect();
+},
+ex => Console.WriteLine("COMPLETE ERROR"),
+() => Console.WriteLine("COMPLETE"));
+
 //...
 d.Dispose();
-```
-
-The IConvirmableEnvelope<T> istances also implement the IConfirmableMessage interface, providing a common abstraction for accepting (ack) or rejecting (nack) messages from the queue.
-
-
-```cs
-public interface IConfirmableMessage
-{
-    void Accept(bool multiple = false);
-    void Reject(bool multiple = false, bool requeue = false);
-}
 ```
 
 ## Mailbox and Mailman Args
@@ -120,23 +85,19 @@ Both Mailman and Mailbox need that you provide some basic parameters for configu
 ### EndpointArgs
 
 ```cs
-string HostName
-int Port
-string UserName
-string Password
-string VirtualHost
+string ConnectionUrl
 bool AutomaticRecoveryEnabled
 TimeSpan NetworkRecoveryInterval
 ```
 
-### SourceArgs
+### Source
 
 ```cs
-ExchangeArgs ExchangeArgs
-QueueArgs QueueArgs
+IExchange Exchange
+IQueueArgs QueueArgs
 ```
 
-### ExchangeArgs
+### IExchange
 
 ```cs
 string ExchangeName
@@ -146,7 +107,7 @@ bool AutoDelete
 IDictionary<string, object> Properties
 ```
 
-### QueueArgs
+### IQueueArgs
 
 ```cs
 string QueueName
@@ -155,13 +116,14 @@ bool Exclusive
 bool AutoDelete
 ```
 
-### MailboxArgs
+### Sink
 
 ```cs
 string DeadLetterExchangeName
 IDictionary<string, object> QueueDeclareArguments
-SourceArgs Source
+Source Source
 BasicQualityOfService BasicQualityOfService
+ConfirmationPolicy ConfirmationPolicy 
 QueueBind QueueBind
 ```
 
@@ -177,6 +139,14 @@ IDictionary<string, object> Arguments
 ```cs
 ushort PrefetchCount
 bool Global
+```
+
+### ConfirmationPolicy
+
+```cs
+bool AutoAck
+bool Multiple
+bool Requeue
 ```
 
 ### Status

@@ -3,13 +3,6 @@ using Alice.MailMan;
 
 namespace Alice.MailBox
 {
-
-    public class ConfirmationPolicy
-    {
-        public bool AutoAck { get; set; }
-        public bool Multiple { get; set; }
-        public bool Requeue { get; set; }
-    }
     public class Sink
     {
         public string DeadLetterExchangeName { get; set; } //must be settable at runtime
@@ -17,7 +10,6 @@ namespace Alice.MailBox
         public Source Source { get; set; }
         public BasicQualityOfService BasicQualityOfService { get; }
         public ConfirmationPolicy ConfirmationPolicy { get; }
-
         public QueueBind QueueBind { get; }
 
         public Sink(

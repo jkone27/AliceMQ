@@ -6,28 +6,28 @@ using Alice.MailMan;
 
 namespace Tests
 {
-    public class FakeCustomMailbox<T> : CustomMailbox<T>
+    public class FakeMailbox<T> : Mailbox<T>
     {
-        protected FakeCustomMailbox(EndPoint simpleEndPoint, Sink sink, Func<string, T> deserializer) 
+        protected FakeMailbox(EndPoint simpleEndPoint, Sink sink, Func<string, T> deserializer) 
             : base(simpleEndPoint, sink, deserializer)
         {
             throw new NotImplementedException();
         }
 
-        public FakeCustomMailbox(IMailboxBase mailbox, Func<string, T> deserializer) 
-            : base(mailbox, deserializer)
+        public FakeMailbox(ISimpleMailbox simpleMailbox, Func<string, T> deserializer) 
+            : base(simpleMailbox, deserializer)
         {
         }
     }
 
-    public class FakeMailbox : IMailboxBase
+    public class FakeSimpleMailbox : ISimpleMailbox
     {
         public IObservable<IMailboxContext> Source;
         private readonly bool _autoAck;
 
         protected IObservable<IMailboxContext> ConsumerReceivedObservable => Source;
 
-        public FakeMailbox(IObservable<IMailboxContext> source, bool autoAck = false)
+        public FakeSimpleMailbox(IObservable<IMailboxContext> source, bool autoAck = false)
         {
             Source = source;
             _autoAck = autoAck;

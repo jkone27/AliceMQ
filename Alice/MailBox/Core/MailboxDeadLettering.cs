@@ -2,11 +2,6 @@ using RabbitMQ.Client;
 
 namespace Alice.MailBox.Core
 {
-    public interface IMailboxDeadLettering
-    {
-        void DeadLetterSetup(IModel channel);
-    }
-
     public sealed class MailboxDeadLettering : IMailboxDeadLettering
     {
         private readonly Sink _sink;

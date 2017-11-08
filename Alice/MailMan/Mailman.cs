@@ -52,20 +52,13 @@ namespace Alice.MailMan
             }
         }
 
-        public void RabbitSendMessage(IModel channel, string message,
-            IBasicProperties props, string routingKey, Action<string, Exception> onExceptionAction = null) 
+        private void RabbitSendMessage(IModel channel, string message,
+            IBasicProperties props, string routingKey) 
         {
-            try
-            {
-                channel.BasicPublish(ExchangeName,
-                    routingKey,
-                    props,
-                    props.GetEncoding().GetBytes(message));
-            }
-            catch (Exception e)
-            {
-                (onExceptionAction ?? ((m, ex) => { }))(message, e);
-            }
+            channel.BasicPublish(ExchangeName,
+                routingKey,
+                props,
+                props.GetEncoding().GetBytes(message));
         }
 
         private void TryApplyOnNewChannel(Action<IModel> channelAction)

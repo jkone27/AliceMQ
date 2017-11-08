@@ -5,11 +5,6 @@ using RabbitMQ.Client;
 
 namespace Alice.MailBox.Core
 {
-    public interface IMailboxChannel
-    {
-        void Connect(out IModel channel, out CompositeDisposable compositeDisposable);
-    }
-
     public sealed class MailboxChannel : IMailboxChannel
     {
         private readonly IConnectionFactory _factory;

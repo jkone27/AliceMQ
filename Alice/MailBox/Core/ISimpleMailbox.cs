@@ -2,7 +2,7 @@ using System;
 
 namespace Alice.MailBox.Core
 {
-    public interface IMailboxBase : IObservable<IMailboxContext>
+    public interface ISimpleMailbox : IObservable<IMailboxContext>
     {
         string ConnectionUrl { get; }
         string QueueName { get; }

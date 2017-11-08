@@ -59,7 +59,7 @@ namespace Tests
                 .FromEventPattern<BasicDeliverEventArgs>(testEvent, nameof(testEvent.FakeEvent))
                 .Select(e => new MailboxContext{ Channel = null, EventArgs = e.EventArgs});
 
-            var c = new FakeMailbox(src, autoAck: true);
+            var c = new FakeSimpleMailbox(src, autoAck: true);
             c.Subscribe(m => 
                 received = true);
 
@@ -78,7 +78,7 @@ namespace Tests
             var src = new Subject<IMailboxContext>();
             src.OnError(new Exception("ex"));
 
-            var c = new FakeMailbox(src, autoAck: true);
+            var c = new FakeSimpleMailbox(src, autoAck: true);
             c.Subscribe(m =>
                 received = true,
                 e => onError = true
@@ -100,7 +100,7 @@ namespace Tests
             var src = new Subject<IMailboxContext>();
             src.OnCompleted();
 
-            var c = new FakeMailbox(src, autoAck: true);
+            var c = new FakeSimpleMailbox(src, autoAck: true);
             c.Subscribe(m =>
                 received = true,
                 _ => {},
@@ -122,7 +122,7 @@ namespace Tests
                 .Interval(TimeSpan.FromTicks(1), s)
                 .Select(z => new MailboxContext { Channel = null, EventArgs =  NewArgs() });
 
-            var c = new FakeCustomMailbox<string>(new FakeMailbox(src, autoAck: true), str => str);
+            var c = new FakeMailbox<string>(new FakeSimpleMailbox(src, autoAck: true), str => str);
 
             c.Subscribe(m => received = true);
             s.AdvanceBy(1);
@@ -139,7 +139,7 @@ namespace Tests
                 .Interval(TimeSpan.FromTicks(1), s)
                 .Select(z => new MailboxContext { Channel = null, EventArgs = NewArgs(WrongPayload)});
 
-            var c = new FakeCustomMailbox<TestMessage>(new FakeMailbox(src, autoAck: true), JsonConvert.DeserializeObject<TestMessage>);
+            var c = new FakeMailbox<TestMessage>(new FakeSimpleMailbox(src, autoAck: true), JsonConvert.DeserializeObject<TestMessage>);
             c.Subscribe(m =>
             {
                 if (m.IsOk<TestMessage>())
@@ -170,8 +170,8 @@ namespace Tests
                 .Interval(TimeSpan.FromTicks(1), s)
                 .Select(z => new MailboxContext { Channel = channel.Object, EventArgs = NewArgs()});
 
-            var mb = new FakeMailbox(src);
-            var custom = new FakeCustomMailbox<string>(mb, str => str);
+            var mb = new FakeSimpleMailbox(src);
+            var custom = new FakeMailbox<string>(mb, str => str);
 
             custom.Subscribe(m =>
                 { received = true;
@@ -195,8 +195,8 @@ namespace Tests
                 .Interval(TimeSpan.FromTicks(1), s)
                 .Select(z => new MailboxContext { Channel = channel.Object, EventArgs = NewArgs()});
 
-            var mb = new FakeMailbox(src);
-            var custom = new FakeCustomMailbox<string>(mb, str => str);
+            var mb = new FakeSimpleMailbox(src);
+            var custom = new FakeMailbox<string>(mb, str => str);
 
             custom.Subscribe(m =>
             {
@@ -221,8 +221,8 @@ namespace Tests
                 .Interval(TimeSpan.FromTicks(1), s)
                 .Select(z => new MailboxContext { Channel = channel.Object, EventArgs = NewArgs()});
 
-            var mb = new FakeMailbox(src);
-            var typed = new FakeCustomMailbox<string>(mb, str => str);
+            var mb = new FakeSimpleMailbox(src);
+            var typed = new FakeMailbox<string>(mb, str => str);
 
             typed.Subscribe(m =>
             {
@@ -253,8 +253,8 @@ namespace Tests
                 .Interval(TimeSpan.FromTicks(1), s)
                 .Select(z => new MailboxContext { Channel = channel.Object, EventArgs = NewArgs(WrongPayload)});
 
-            var mb = new FakeMailbox(src);
-            var typed = new FakeCustomMailbox<TestMessage>(mb, JsonConvert.DeserializeObject<TestMessage>);
+            var mb = new FakeSimpleMailbox(src);
+            var typed = new FakeMailbox<TestMessage>(mb, JsonConvert.DeserializeObject<TestMessage>);
 
             typed.Subscribe(m =>
             {

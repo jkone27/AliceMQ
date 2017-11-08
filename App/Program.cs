@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using Alice.ExtensionMethods;
 using Alice.MailBox;
 using Alice.MailBox.Core;
@@ -26,10 +27,7 @@ namespace App
             //first message published creates exchange if non existent
             p.PublishOne(new Msg(-1),"");
 
-            var sfm = new CustomMailbox<Msg>(endPoint, sink, s => JsonConvert.DeserializeObject<Msg>(s, serialization));
-
-            Console.WriteLine("waiting for messages..");
-
+            //var mb = new SimpleMailbox(endPoint, sink);
 
             //var d = mb.Subscribe(am =>
             //{
@@ -37,7 +35,11 @@ namespace App
             //    am.Channel.BasicAck(am.EventArgs.DeliveryTag, false);
             //});
 
-            var z1 = sfm.Subscribe(am =>
+            var sfm = new Mailbox<Msg>(endPoint, sink, s => JsonConvert.DeserializeObject<Msg>(s, serialization));
+
+            Console.WriteLine("waiting for messages..");
+
+            var d = sfm.Subscribe(am =>
             {
                 if (am.IsOk<Msg>())
                 {
@@ -67,7 +69,7 @@ namespace App
             }
 
             //d.Dispose();
-            z1.Dispose();
+            d.Dispose();
 
         }
     }
