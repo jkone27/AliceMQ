@@ -1,69 +1,151 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using Alice.ExtensionMethods;
 using Alice.MailBox.EndPointArgs;
 using Alice.MailMan.Interface;
 using RabbitMQ.Client;
 
 namespace Alice.MailMan
 {
-    public class Mailman : 
-        IMailman
+    public sealed class Mailman : IMailman
     {
-        private readonly Action<IBasicProperties> _staticPropertiesSetter;
-        private readonly Action<Exception> _publishErrorAction;
-        private readonly RabbitMailmanLogic _logic;
+        public string ExchangeName => _exchange.ExchangeName;
+        public bool DefaultExchange => string.IsNullOrWhiteSpace(ExchangeName);
 
-        public Mailman( 
+        public readonly ConnectionFactory Factory;
+		private readonly IExchange _exchange;
+        private readonly Func<object, string> _serializer;
+
+        public Mailman(
             EndPoint simpleEndpoint, 
-            IExchange exchange,
-            Func<object, string> serializer,
-            Action<Exception> publishErrorAction = null,
-            Action<IBasicProperties> staticPropertiesSetter = null
-            )
+            IExchange exchange, 
+            Func<object,string> serializer)
         {
-            _logic = new RabbitMailmanLogic(simpleEndpoint, exchange, serializer);
-            _staticPropertiesSetter = staticPropertiesSetter;
-            _publishErrorAction = publishErrorAction ?? (p => { });
+			_exchange = exchange;
+            _serializer = serializer;
+            Factory = new ConnectionFactory
+            {
+                Uri = new Uri(simpleEndpoint.ConnectionUrl),
+                NetworkRecoveryInterval = simpleEndpoint.NetworkRecoveryInterval,
+                AutomaticRecoveryEnabled = simpleEndpoint.AutomaticRecoveryEnabled
+            };
         }
 
-
-        public void PublishOne<T>(T message, string routingKey)
+        public IBasicProperties SetupChannel(IModel channel)
         {
             try
             {
-                _logic.PublishOne(message, routingKey, _staticPropertiesSetter);
+                if (!DefaultExchange)
+                    channel.ExchangeDeclare(
+                        ExchangeName,
+                        _exchange.ExchangeType,
+						_exchange.Durable,
+						_exchange.AutoDelete,
+						_exchange.Properties);
+
+                return channel.CreateBasicProperties();
             }
             catch (Exception ex)
             {
-                _publishErrorAction(ex);
+                throw new SetupException(ex);
             }
+        }
+
+        public void RabbitSendMessage(IModel channel, string message,
+            IBasicProperties props, string routingKey, Action<string, Exception> onExceptionAction = null) 
+        {
+            try
+            {
+                channel.BasicPublish(ExchangeName,
+                    routingKey,
+                    props,
+                    props.GetEncoding().GetBytes(message));
+            }
+            catch (Exception e)
+            {
+                (onExceptionAction ?? ((m, ex) => { }))(message, e);
+            }
+        }
+
+        private void TryApplyOnNewChannel(Action<IModel> channelAction)
+        {
+            try
+            {
+                using (var connection = Factory.CreateConnection())
+                using (var channel = connection.CreateModel())
+                    channelAction(channel);
+            }
+            catch (SetupException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new SetupException(ex);
+            }
+        }
+
+        private Func<IModel, IBasicProperties> UpdateProperties(Action<IBasicProperties> propertiesSetter)
+        {
+            return c => SetupChannel(c).AssignProperties(propertiesSetter);
+        }
+
+        private Action<IModel> SendMessageOnChannel<T>(T message, string routingKey, Action<IBasicProperties> propertiesSetter = null)
+        {
+
+            return channel => RabbitSendMessage(
+                channel, 
+                _serializer(message), 
+                UpdateProperties(propertiesSetter)(channel), 
+                routingKey);
+        }
+
+        public void PublishOne<T>(T message, string routingKey, Action<IBasicProperties> applyStaticProperties)
+        {
+            TryApplyOnNewChannel(SendMessageOnChannel(message,routingKey, applyStaticProperties));
+        }
+
+        public void PublishSome<T>(IEnumerable<T> messages, string routingKey, Action<IBasicProperties> applyStaticProperties)
+        {
+            TryApplyOnNewChannel(SendManyMessagesOnChannel(messages,routingKey, applyStaticProperties));
+        }
+
+        private Action<IModel> SendManyMessagesOnChannel<T>(IEnumerable<T> messages, string routingKey, 
+            Action<IBasicProperties> applyStaticProperties)
+        {
+            return messages
+                .Select(m => SendMessageOnChannel(
+                    m, 
+                    routingKey, 
+                    applyStaticProperties))
+                .Aggregate((previous, next) => previous + next);
+        }
+
+        public void PublishOne<T>(T message, string routingKey)
+        {
+            PublishOne(message, routingKey, null);
         }
 
         public void PublishSome<T>(IList<T> messages, string routingKey)
         {
-            try
-            {
-                _logic.PublishSome(messages, routingKey, _staticPropertiesSetter);
-            }
-            catch (Exception ex)
-            {
-                _publishErrorAction(ex);
-            }
+            PublishSome(messages, routingKey, null);
         }
 
-        public void CustomPublishSome<T,TP>(
-            IList<IMessageProperty<T, TP>> messagePropertyTuples, 
-            string routingKey,
-            Action<TP, IBasicProperties> dynamicPropertiesSetter)
+        public void CustomPublishSome<T, TP>(IList<IMessageProperty<T, TP>> messagePropertyTuples, string routingKey,
+            Action<TP, IBasicProperties> applyDynamicProperties)
         {
-            try
-            {
-                _logic.CustomPublishSome(messagePropertyTuples, routingKey, dynamicPropertiesSetter);
-            }
-            catch (Exception ex)
-            {
-                _publishErrorAction(ex);
-            }
+            PublishSome(messagePropertyTuples.Select(mp => mp.Message), routingKey, 
+                CollectPropertiesCustomizationOnChannel(messagePropertyTuples, applyDynamicProperties));
+        }
+
+        private static Action<IBasicProperties> CollectPropertiesCustomizationOnChannel<T, TP>(
+            IEnumerable<IMessageProperty<T, TP>> messagePropertyTuples, 
+            Action<TP, IBasicProperties> applyDynamicProperties)
+        {
+            return messagePropertyTuples
+                .Select(mp => (Action<IBasicProperties>)(p => applyDynamicProperties(mp.Property, p)))
+                .Aggregate((previous, next) => previous + next);
         }
     }
 }

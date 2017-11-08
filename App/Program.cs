@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Alice.ExtensionMethods;
 using Alice.MailBox;
 using Alice.MailBox.Core;
