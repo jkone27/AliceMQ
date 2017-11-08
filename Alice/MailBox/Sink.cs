@@ -1,0 +1,43 @@
+using System.Collections.Generic;
+using Alice.MailMan;
+
+namespace Alice.MailBox
+{
+
+    public class ConfirmationPolicy
+    {
+        public bool AutoAck { get; set; }
+        public bool Multiple { get; set; }
+        public bool Requeue { get; set; }
+    }
+    public class Sink
+    {
+        public string DeadLetterExchangeName { get; set; } //must be settable at runtime
+        public IDictionary<string, object> QueueDeclareArguments { get; set; } //must be settable at runtime
+        public Source Source { get; set; }
+        public BasicQualityOfService BasicQualityOfService { get; }
+        public ConfirmationPolicy ConfirmationPolicy { get; }
+
+        public QueueBind QueueBind { get; }
+
+        public Sink(
+            Source source, 
+            string routingKey = "",
+            string deadLetterExchangeName = null,
+            IDictionary<string, object> queueDeclareArguments = null,
+            IDictionary<string, object> queueBindArguments = null,
+            ushort prefetchCount = 1,
+            bool global = false,
+            ConfirmationPolicy confirmationPolicy = null)
+        {
+            QueueDeclareArguments = queueDeclareArguments ?? new Dictionary<string, object>();
+            QueueBind = new QueueBind(queueBindArguments ?? new Dictionary<string, object>(), routingKey);
+            Source = source;
+            DeadLetterExchangeName = deadLetterExchangeName;
+            BasicQualityOfService = new BasicQualityOfService(prefetchCount, global);
+            ConfirmationPolicy = confirmationPolicy ?? new ConfirmationPolicy();
+        }
+
+        
+    }
+}
