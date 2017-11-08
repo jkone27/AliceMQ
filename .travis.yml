@@ -1,6 +1,7 @@
 xbuildlanguage: csharp
 solution: AliceNet.sln
 dotnet: 2.0.0
+sudo: required
 mono: latest
 install:
   - mono ./.paket/paket.bootstrapper.exe
