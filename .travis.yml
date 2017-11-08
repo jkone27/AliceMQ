@@ -1,9 +1,10 @@
 xbuildlanguage: csharp
 solution: AliceNet.sln
 dotnet: 2.0.0
+mono: latest
 install:
   - mono ./.paket/paket.bootstrapper.exe
   - mono ./.paket/paket.exe restore
 script:
-  - xbuild AliceMQ.sln
-  - mono ./packages/xunit.runner.console/tools/xunit.console.exe ./AliceMQ.Tests/bin/Debug/AliceMQ.Tests.dll
+  - dotnet build
+  - dotnet test .\Tests
