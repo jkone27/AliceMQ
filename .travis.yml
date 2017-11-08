@@ -1,4 +1,4 @@
-xbuildlanguage: csharp
+language: csharp
 solution: AliceNet.sln
 dotnet: 2.0.0
 sudo: required
@@ -8,4 +8,4 @@ install:
   - mono ./.paket/paket.exe restore
 script:
   - dotnet build
-  - dotnet test .\Tests
+  - dotnet test ./Tests
