@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Alice.MailBox
+namespace AliceMQ.MailBox
 {
     public class QueueBind
     {

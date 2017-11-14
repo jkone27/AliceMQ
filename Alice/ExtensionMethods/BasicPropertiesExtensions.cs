@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using RabbitMQ.Client;
 
-namespace Alice.ExtensionMethods
+namespace AliceMQ.ExtensionMethods
 {
     public static class BasicPropertiesExtensions
     {

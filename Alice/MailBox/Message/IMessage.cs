@@ -1,4 +1,4 @@
-﻿namespace Alice.MailBox.Interface
+﻿namespace AliceMQ.MailBox.Message
 {
     public interface IMessage
     {

@@ -1,6 +1,6 @@
 using System;
 
-namespace Alice.MailBox
+namespace AliceMQ.MailBox
 {
     public class ManualAckEventArgs<T> : EventArgs
     {

@@ -1,4 +1,4 @@
-namespace Alice.MailMan
+namespace AliceMQ.MailMan
 {
     public class QueueArgs : IQueueArgs
     {

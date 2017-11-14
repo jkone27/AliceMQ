@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Alice.MailMan
+namespace AliceMQ.MailMan
 {
     public class Exchange : IExchange
     {

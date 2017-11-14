@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Alice.ExtensionMethods;
-using Alice.MailBox.EndPointArgs;
-using Alice.MailMan.Interface;
+using AliceMQ.ExtensionMethods;
+using AliceMQ.MailBox.EndPointArgs;
+using AliceMQ.MailMan.Interface;
 using RabbitMQ.Client;
 
-namespace Alice.MailMan
+namespace AliceMQ.MailMan
 {
     public sealed class Mailman : IMailman
     {

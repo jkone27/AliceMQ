@@ -1,4 +1,4 @@
-namespace Alice.MailMan.Interface
+namespace AliceMQ.MailMan.Interface
 {
     public interface IMessageProperty<out T, out TP>
     {

@@ -1,6 +1,6 @@
-using Alice.MailBox.Core;
+using AliceMQ.MailBox.Core;
 
-namespace Alice.MailBox.Message
+namespace AliceMQ.MailBox.Message
 {
     public class Ok<T> : Success<IMailboxContext>
     {

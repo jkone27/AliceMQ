@@ -1,7 +1,7 @@
 using System;
-using Alice.MailBox.Core;
+using AliceMQ.MailBox.Core;
 
-namespace Alice.MailBox.Message
+namespace AliceMQ.MailBox.Message
 {
     public class Error : Failure<IMailboxContext>
     {

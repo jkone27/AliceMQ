@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using RabbitMQ.Client;
 
-namespace Alice.MailMan.Interface
+namespace AliceMQ.MailMan.Interface
 {
     public interface IMailman
     {

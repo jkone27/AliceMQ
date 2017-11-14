@@ -1,6 +1,6 @@
 using System;
 
-namespace Alice.MailBox.Core
+namespace AliceMQ.MailBox.Core
 {
     public interface ISimpleMailbox : IObservable<IMailboxContext>
     {

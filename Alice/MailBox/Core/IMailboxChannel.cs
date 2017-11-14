@@ -1,7 +1,7 @@
 using System.Reactive.Disposables;
 using RabbitMQ.Client;
 
-namespace Alice.MailBox.Core
+namespace AliceMQ.MailBox.Core
 {
     public interface IMailboxChannel
     {

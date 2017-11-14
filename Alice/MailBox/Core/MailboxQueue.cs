@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using Alice.MailMan;
+using AliceMQ.MailMan;
 using RabbitMQ.Client;
 
-namespace Alice.MailBox.Core
+namespace AliceMQ.MailBox.Core
 {
     public sealed class MailboxQueue : IMailboxQueue
     {

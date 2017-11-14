@@ -1,9 +1,9 @@
 using System;
 using System.Reactive.Disposables;
-using Alice.MailBox.EndPointArgs;
+using AliceMQ.MailBox.EndPointArgs;
 using RabbitMQ.Client;
 
-namespace Alice.MailBox.Core
+namespace AliceMQ.MailBox.Core
 {
     public sealed class MailboxChannel : IMailboxChannel
     {

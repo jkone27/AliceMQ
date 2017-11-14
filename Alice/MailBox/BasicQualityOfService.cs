@@ -1,4 +1,4 @@
-namespace Alice.MailBox
+namespace AliceMQ.MailBox
 {
     public class BasicQualityOfService
     {

@@ -1,6 +1,4 @@
-﻿using Alice.MailBox.Interface;
-
-namespace Alice.MailBox.Message
+﻿namespace AliceMQ.MailBox.Message
 {
     public abstract class Success<T> : IMessage
     {

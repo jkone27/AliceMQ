@@ -1,6 +1,6 @@
 using System;
 
-namespace Alice.MailBox.EndPointArgs
+namespace AliceMQ.MailBox.EndPointArgs
 {
     public interface INetworkRecoveryInfo
     {

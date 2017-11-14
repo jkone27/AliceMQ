@@ -1,11 +1,11 @@
 using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using Alice.MailBox.EndPointArgs;
+using AliceMQ.MailBox.EndPointArgs;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-namespace Alice.MailBox.Core
+namespace AliceMQ.MailBox.Core
 {
     public sealed class SimpleMailbox: ISimpleMailbox
     {

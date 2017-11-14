@@ -1,6 +1,6 @@
 using System;
 
-namespace Alice.MailMan
+namespace AliceMQ.MailMan
 {
     public class SetupException : Exception
     {

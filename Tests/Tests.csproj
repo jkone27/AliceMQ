@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Alice\Alice.csproj" />
+    <ProjectReference Include="..\Alice\AliceMQ.csproj" />
   </ItemGroup>
 
 </Project>

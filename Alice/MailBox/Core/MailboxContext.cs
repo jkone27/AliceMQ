@@ -1,7 +1,7 @@
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-namespace Alice.MailBox.Core
+namespace AliceMQ.MailBox.Core
 {
     public class MailboxContext : IMailboxContext
     {

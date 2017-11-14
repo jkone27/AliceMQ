@@ -1,7 +1,6 @@
-﻿using Alice.MailBox.Interface;
-using Alice.MailBox.Message;
+﻿using AliceMQ.MailBox.Message;
 
-namespace Alice.ExtensionMethods
+namespace AliceMQ.ExtensionMethods
 {
     public static class MessageExtensions
     {

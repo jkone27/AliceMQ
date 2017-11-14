@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using Alice.MailMan;
+using AliceMQ.MailMan;
 
-namespace Alice.MailBox
+namespace AliceMQ.MailBox
 {
     public class Sink
     {

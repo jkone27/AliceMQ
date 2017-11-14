@@ -1,6 +1,6 @@
 using RabbitMQ.Client;
 
-namespace Alice.MailBox.Core
+namespace AliceMQ.MailBox.Core
 {
     public sealed class MailboxDeadLettering : IMailboxDeadLettering
     {

@@ -1,6 +1,6 @@
 using System;
 
-namespace Alice.MailBox.Message
+namespace AliceMQ.MailBox.Message
 {
     public class AlreadyConfirmedMessageException : Exception { }
 }

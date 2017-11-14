@@ -1,8 +1,8 @@
 using System;
-using Alice.MailBox;
-using Alice.MailBox.Core;
-using Alice.MailBox.EndPointArgs;
-using Alice.MailMan;
+using AliceMQ.MailBox;
+using AliceMQ.MailBox.Core;
+using AliceMQ.MailBox.EndPointArgs;
+using AliceMQ.MailMan;
 
 namespace Tests
 {
