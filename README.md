@@ -18,9 +18,9 @@ var endPoint = new EndPoint();
 var sink = new Sink(source);
 
 var serialization = new JsonSerializerSettings
-            {
-                MissingMemberHandling = MissingMemberHandling.Error
-            };
+    {
+        MissingMemberHandling = MissingMemberHandling.Error
+    };
 
  var p = new Mailman(endPoint, source.Exchange, s => JsonConvert.SerializeObject(s, serialization));
 
@@ -68,7 +68,7 @@ var d = sfm.Subscribe(am =>
     else
     {
         Console.WriteLine("error - " + am.AsError().Ex.Message);
-        am.Confirm();
+        am.Reject();
     }
 },
 ex => Console.WriteLine("COMPLETE ERROR"),
