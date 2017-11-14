@@ -13,5 +13,5 @@ dependencies
     System.Reactive.PlatformServices ~> LOCKEDVERSION
     System.Reactive.Windows.Threading ~> LOCKEDVERSION
 files
-    bin\Release\AliceMQ.dll ==> lib\net46
-    bin\Release\AliceMQ.pdb ==> lib\net46
+    bin\Release\netstandard1.5\AliceMQ.dll ==> lib\netstandard1.5
+    bin\Release\netstandard1.5\\AliceMQ.pdb ==> lib\netstandard1.5

@@ -30,7 +30,7 @@ p.PublishOne(new Msg(-1),"");
 
 Now let's see the simplest form of consumer, which is just a thin layer from the real MQ system...
 
-## Mailbox (Consumer)
+## SimpleMailbox (Consumer of BasicDeliverEventArgs)
 
 Consumer subscription is identical for every type, giving an istance of an IObservable<T> (rx).
 
@@ -50,7 +50,7 @@ d.Dispose();
 
 ```
 
-## CustomMailBox (Typed Consumer)
+## Mailbox\<T> (Consumer of T)
 
 let's consider an example DTO class Msg, the typed consumer is build upon the common consumer, which is enhanced with message body deserialization into an istance of a generic T type.
 
@@ -78,7 +78,7 @@ ex => Console.WriteLine("COMPLETE ERROR"),
 d.Dispose();
 ```
 
-## Mailbox and Mailman Args
+## Utility Types
 
 Both Mailman and Mailbox need that you provide some basic parameters for configuring the Endpoint, the Source (namely Exchange and Queue), and the Mailbox (with more sofisticated configurations).
 
