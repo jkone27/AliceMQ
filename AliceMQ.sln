@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2008
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AliceMQ", "Alice\AliceMQ.csproj", "{04DFB2C7-4862-4F57-947C-9D67D464C167}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AliceMQ", "AliceMQ\AliceMQ.csproj", "{04DFB2C7-4862-4F57-947C-9D67D464C167}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{E811D5E3-EACB-4607-8F22-D0362986823D}"
 EndProject
