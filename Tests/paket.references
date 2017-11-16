@@ -11,10 +11,4 @@ System.Reactive.Linq
 System.Reactive.PlatformServices
 System.Reactive.Windows.Threading
 xunit
-xunit.abstractions
-xunit.assert
-xunit.core
-xunit.extensibility.core
-xunit.extensibility.execution
-xunit.runner.console
 xunit.runner.visualstudio

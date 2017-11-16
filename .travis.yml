@@ -8,7 +8,7 @@ branches:
     - master
 install:
   - mono ./.paket/paket.bootstrapper.exe
+  - mono ./.paket/paket.exe update
   - mono ./.paket/paket.exe restore
 script:
-  - dotnet build
-  - dotnet test ./Tests
+  - fsi build.fsx

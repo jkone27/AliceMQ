@@ -1,6 +1,9 @@
 strategy: max
 source https://www.nuget.org/api/v2
 
+nuget Fake
+nuget FSharp.Compiler.Tools
+nuget FSharp.Management
 nuget NuGet.CommandLine
 nuget Castle.Core
 nuget Microsoft.Net.Compilers
@@ -9,11 +12,6 @@ nuget Moq
 nuget Newtonsoft.Json
 nuget RabbitMQ.Client
 nuget System.Reactive
-nuget System.Reactive.Core
-nuget System.Reactive.Interfaces
-nuget System.Reactive.Linq
-nuget System.Reactive.PlatformServices
-nuget System.Reactive.Windows.Threading
 nuget xunit
 nuget xunit.abstractions
 nuget xunit.assert
