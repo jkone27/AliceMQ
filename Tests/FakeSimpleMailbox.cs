@@ -1,39 +1,24 @@
 using System;
 using AliceMQ.MailBox;
 using AliceMQ.MailBox.Core;
-using AliceMQ.MailBox.EndPointArgs;
 using AliceMQ.MailMan;
 
 namespace Tests
 {
-    public class FakeMailbox<T> : Mailbox<T>
-    {
-        protected FakeMailbox(EndPoint simpleEndPoint, Sink sink, Func<string, T> deserializer) 
-            : base(simpleEndPoint, sink, deserializer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public FakeMailbox(ISimpleMailbox simpleMailbox, Func<string, T> deserializer) 
-            : base(simpleMailbox, deserializer)
-        {
-        }
-    }
-
     public class FakeSimpleMailbox : ISimpleMailbox
     {
-        public IObservable<IMailboxContext> Source;
+        public IObservable<IDeliveryContext> Source;
         private readonly bool _autoAck;
 
-        protected IObservable<IMailboxContext> ConsumerReceivedObservable => Source;
+        protected IObservable<IDeliveryContext> ConsumerReceivedObservable => Source;
 
-        public FakeSimpleMailbox(IObservable<IMailboxContext> source, bool autoAck = false)
+        public FakeSimpleMailbox(IObservable<IDeliveryContext> source, bool autoAck = false)
         {
             Source = source;
             _autoAck = autoAck;
         }
 
-        public IDisposable Subscribe(IObserver<IMailboxContext> observer)
+        public IDisposable Subscribe(IObserver<IDeliveryContext> observer)
         {
             return Source.Subscribe(observer);
         }

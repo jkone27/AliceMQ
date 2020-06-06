@@ -25,13 +25,4 @@ namespace AliceMQ.MailMan
         //must be settable at runtime
         public IDictionary<string, object> Properties { get; set; }
     }
-
-    public interface IExchange
-    {
-      string ExchangeName { get; }
-      string ExchangeType { get; }
-      bool Durable { get; }
-      bool AutoDelete { get; }
-      IDictionary<string, object> Properties { get; }
-    }
 }

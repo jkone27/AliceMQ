@@ -29,7 +29,7 @@ namespace AliceMQ.MailBox.Core
             _deadLettering = new MailboxDeadLettering(sink);
         }
 
-        public IDisposable Subscribe(IObserver<IMailboxContext> observer)
+        public IDisposable Subscribe(IObserver<IDeliveryContext> observer)
         {
             var utility = SetupEnvironment();
             var consumer = new EventingBasicConsumer(utility.Channel);
@@ -37,11 +37,7 @@ namespace AliceMQ.MailBox.Core
             var ob = Observable
                 .FromEventPattern<BasicDeliverEventArgs>(consumer, nameof(consumer.Received))
                 .Select(e => e.EventArgs)
-                .Select(s => new MailboxContext
-                {
-                    EventArgs = s,
-                    Channel = utility.Channel
-                });
+                .Select(s => new MailboxContext(s, utility.Channel));
 
             var subscription = ob.Subscribe(observer.OnNext, observer.OnError, observer.OnCompleted);
             utility.Disposables.Add(subscription);

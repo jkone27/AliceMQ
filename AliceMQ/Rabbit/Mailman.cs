@@ -88,6 +88,10 @@ namespace AliceMQ.MailMan
 
         private Action<IModel> SendMessageOnChannel<T>(T message, string routingKey, Action<IBasicProperties> propertiesSetter = null)
         {
+            if(message == null)
+            {
+                return channel => { };
+            }
 
             return channel => RabbitSendMessage(
                 channel, 

@@ -22,10 +22,4 @@ namespace AliceMQ.MailMan
             Exchange = new Exchange(exchangeName, exchangeType, properties, durableExchange, autoDeleteExchange);
         }
     }
-
-    public interface ISource
-    {
-        IExchange Exchange { get; }
-        IQueueArgs QueueArgs { get; }
-    }
 }

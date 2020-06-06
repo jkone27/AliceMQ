@@ -14,9 +14,9 @@ namespace AliceMQ.MailBox.Message
 
         public Exception Ex { get; }
 
-        private readonly IContext _context;
+        public IDeliveryContext DeliveryContext => _context.DeliveryContext;
 
-        public IMailboxContext MbContext => _context.DeliveryContext;
+        private readonly IContext _context;
 
         public void Confirm()
         {

@@ -1,26 +1,29 @@
+using System.Dynamic;
 using System.Text;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
 namespace AliceMQ.MailBox.Core
 {
-    public class MailboxContext : IMailboxContext
+    public class MailboxContext : IDeliveryContext
     {
-        public BasicDeliverEventArgs EventArgs { get; set; }
-        public IModel Channel { get; set; }
+        public BasicDeliverEventArgs EventArgs { get; }
+        public IModel Channel { get; }
+        public ulong DeliveryTag { get; }
 
-        public Encoding Encoding => throw new System.NotImplementedException();
-
-        public string Payload => throw new System.NotImplementedException();
-
-        public void Ack(bool multiple)
+        public MailboxContext(BasicDeliverEventArgs eventArgs, IModel channel)
         {
-            throw new System.NotImplementedException();
+            EventArgs = eventArgs;
+            Channel = channel;
+            DeliveryTag = EventArgs.DeliveryTag;
         }
 
-        public void Nack(bool multiple, bool requeue)
-        {
-            throw new System.NotImplementedException();
-        }
+        public Encoding Encoding => Encoding.GetEncoding(EventArgs.BasicProperties.ContentEncoding);
+
+        public string Payload => Encoding.GetString(EventArgs.Body.ToArray());
+
+        public void Ack(bool multiple) => Channel.BasicAck(DeliveryTag, multiple);
+
+        public void Nack(bool multiple, bool requeue) => Channel.BasicNack(DeliveryTag, multiple, requeue);
     }
 }

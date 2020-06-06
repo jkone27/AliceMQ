@@ -1,8 +1,10 @@
-﻿namespace AliceMQ.MailBox.Core
+﻿using System.Text;
+
+namespace AliceMQ.MailBox.Core
 {
     public interface IDeliveryContext
     {
-        System.Text.Encoding Encoding { get; }
+        Encoding Encoding { get; }
         string Payload { get; }
         void Ack(bool multiple);
         void Nack(bool multiple, bool requeue);

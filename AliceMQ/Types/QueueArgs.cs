@@ -15,12 +15,4 @@ namespace AliceMQ.MailMan
         public bool Exclusive { get; set; }
         public bool AutoDelete { get; set; }
     }
-
-    public interface IQueueArgs
-    {
-        string QueueName { get; }
-        bool Durable { get; }
-        bool Exclusive { get; }
-        bool AutoDelete { get; }
-    }
 }

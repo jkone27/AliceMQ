@@ -13,7 +13,7 @@ namespace AliceMQ.MailBox.Message
 
         private readonly IContext _context;
 
-        public IMailboxContext MbContext => _context.DeliveryContext;
+        public IDeliveryContext DeliveryContext => _context.DeliveryContext;
 
         public void Confirm()
         {
