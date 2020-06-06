@@ -6,7 +6,6 @@ namespace AliceMQ.MailBox.EndPointArgs
     {
         public bool AutomaticRecoveryEnabled { get; }
         public TimeSpan NetworkRecoveryInterval { get;}
-
         public string ConnectionUrl { get; }
 
         public EndPoint()
