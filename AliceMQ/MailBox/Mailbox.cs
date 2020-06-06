@@ -1,11 +1,10 @@
 using System;
 using System.Reactive.Linq;
-using AliceMQ.MailBox.EndPointArgs;
-using AliceMQ.MailBox.Message;
-using AliceMQ.Rabbit;
-using RabbitMQ.Client.Events;
+using Alice.Core;
+using Alice.Core.Message;
+using Alice.Core.Types;
 
-namespace AliceMQ.MailBox.Core
+namespace AliceMQ.Rabbit.MailBox
 {
     public class Mailbox<T> : IObservable<IMessage>
     {

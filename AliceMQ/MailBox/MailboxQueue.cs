@@ -1,16 +1,16 @@
 using System.Collections.Generic;
-using AliceMQ.MailMan;
+using Alice.Core.Types;
 using RabbitMQ.Client;
 
-namespace AliceMQ.MailBox.Core
+namespace AliceMQ.Rabbit.MailBox
 {
     public sealed class MailboxQueue : IMailboxQueue
     {
-        private readonly Source _source;
+        private readonly ISource _source;
         private readonly QueueBind _queueBind;
         private readonly IDictionary<string, object> _queueDeclareArguments;
 
-        public MailboxQueue(Source source, QueueBind queueBind, IDictionary<string,object> queueDeclareArguments)
+        public MailboxQueue(ISource source, QueueBind queueBind, IDictionary<string,object> queueDeclareArguments)
         {
             _source = source;
             _queueBind = queueBind;

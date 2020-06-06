@@ -7,6 +7,6 @@
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AliceMQ\AliceMQ.csproj" />
+    <ProjectReference Include="..\AliceMQ\AliceMQ.Rabbit.csproj" />
   </ItemGroup>
 </Project>

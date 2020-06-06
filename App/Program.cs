@@ -1,9 +1,8 @@
 ﻿using System;
-using AliceMQ.ExtensionMethods;
-using AliceMQ.MailBox;
-using AliceMQ.MailBox.Core;
-using AliceMQ.MailBox.EndPointArgs;
-using AliceMQ.MailMan;
+using Alice.Core.Message;
+using Alice.Core.Types;
+using AliceMQ.Rabbit.MailBox;
+using AliceMQ.Rabbit.Mailman;
 using Newtonsoft.Json;
 
 namespace App

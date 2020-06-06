@@ -1,6 +1,6 @@
 using RabbitMQ.Client;
 
-namespace AliceMQ.MailBox.Core
+namespace AliceMQ.Rabbit.MailBox
 {
     public interface IMailboxQueue
     {

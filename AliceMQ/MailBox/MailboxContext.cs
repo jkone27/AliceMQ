@@ -1,9 +1,9 @@
-using System.Dynamic;
 using System.Text;
+using Alice.Core.Message;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-namespace AliceMQ.MailBox.Core
+namespace AliceMQ.Rabbit.MailBox
 {
     public class MailboxContext : IDeliveryContext
     {

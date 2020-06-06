@@ -1,7 +1,7 @@
 ﻿using System;
-using AliceMQ.MailBox;
-using AliceMQ.MailBox.Core;
-using AliceMQ.MailBox.EndPointArgs;
+using Alice.Core;
+using Alice.Core.Types;
+using AliceMQ.Rabbit.MailBox;
 
 namespace Tests
 {

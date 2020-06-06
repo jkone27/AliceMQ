@@ -2,8 +2,8 @@
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
-using AliceMQ.ExtensionMethods;
-using AliceMQ.MailBox.Core;
+using Alice.Core.Message;
+using AliceMQ.Rabbit.MailBox;
 using Microsoft.Reactive.Testing;
 using Moq;
 using Newtonsoft.Json;

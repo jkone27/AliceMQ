@@ -1,0 +1,10 @@
+﻿namespace Alice.Core.Types
+{
+    public interface ISink
+    {
+        ISource Source { get; set; }
+        QueueBind QueueBind { get; }
+        ConfirmationPolicy ConfirmationPolicy { get; }
+        string DeadLetterExchangeName { get; set; }
+    }
+}

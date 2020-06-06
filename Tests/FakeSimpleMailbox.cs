@@ -1,7 +1,8 @@
 using System;
-using AliceMQ.MailBox;
-using AliceMQ.MailBox.Core;
-using AliceMQ.MailMan;
+using Alice.Core;
+using Alice.Core.Message;
+using Alice.Core.Types;
+using AliceMQ.Rabbit.MailBox;
 
 namespace Tests
 {
@@ -27,9 +28,10 @@ namespace Tests
         public string QueueName => "";
         public string ExchangeName => "";
         public string DeadLetterExchangeName => "";
-        public Sink Sink => new Sink(new Source(""), confirmationPolicy: new ConfirmationPolicy
+        public ISink Sink => new Sink(new FakeSource(), confirmationPolicy: new ConfirmationPolicy
         {
             AutoAck = _autoAck
         });
     }
+
 }
