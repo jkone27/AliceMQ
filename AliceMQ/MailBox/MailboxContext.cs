@@ -18,7 +18,7 @@ namespace AliceMQ.MailBox.Core
             DeliveryTag = EventArgs.DeliveryTag;
         }
 
-        public Encoding Encoding => Encoding.GetEncoding(EventArgs.BasicProperties.ContentEncoding);
+        public Encoding Encoding => Encoding.GetEncoding(EventArgs.BasicProperties.ContentEncoding ?? "utf-8");
 
         public string Payload => Encoding.GetString(EventArgs.Body.ToArray());
 
