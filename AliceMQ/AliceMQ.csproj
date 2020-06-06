@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard1.5</TargetFramework>
     <Authors>jkone27</Authors>
@@ -15,7 +15,7 @@
     <PackageTags>Rabbitmq,messaging,alice,queue,reactive,rx</PackageTags>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="RabbitMq.Client" Version="5.0.1" />
+    <PackageReference Include="RabbitMq.Client" Version="5.1.0" />
     <PackageReference Include="System.Reactive" Version="3.1.1" />
   </ItemGroup>
 </Project>
