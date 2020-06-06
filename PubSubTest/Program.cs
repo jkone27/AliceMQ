@@ -22,15 +22,12 @@ namespace PubSubTest
             //Environment.SetEnvironmentVariable("GCP_SERVICE_ACCOUNT_JSON", "");
             //Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", "");
 
-            // First create a topic.
-            //PublisherServiceApiClient publisherService = await PublisherServiceApiClient.CreateAsync();
-
+            //PublisherServiceApiClient publisherService = await PublisherServiceApiClient.CreateAsync
             PublisherServiceApiClient publisherService = new PublisherServiceApiClientBuilder
             {
                 Endpoint = emulatorHostAndPort,
                 ChannelCredentials = ChannelCredentials.Insecure
             }.Build();
-
 
             TopicName topicName = new TopicName(projectId, topicId);
 
@@ -43,15 +40,12 @@ namespace PubSubTest
                 //already exists
             }
 
+            //SubscriberServiceApiClient subscriberService = await SubscriberServiceApiClient.CreateAsync();
             SubscriberServiceApiClient subscriberService = new SubscriberServiceApiClientBuilder
             {
                 Endpoint = emulatorHostAndPort,
                 ChannelCredentials = ChannelCredentials.Insecure
             }.Build();
-
-
-            // Subscribe to the topic.
-            //SubscriberServiceApiClient subscriberService = await SubscriberServiceApiClient.CreateAsync();
             
             SubscriptionName subscriptionName = new SubscriptionName(projectId, subscriptionId);
 
@@ -64,7 +58,6 @@ namespace PubSubTest
                 //already exists
             }            
 
-            // Publish a message to the topic using PublisherClient.
             PublisherClient publisher = await PublisherClient.CreateAsync(topicName, 
                 new PublisherClient.ClientCreationSettings(null, null, ChannelCredentials.Insecure, emulatorHostAndPort));
 
