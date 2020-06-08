@@ -19,8 +19,19 @@ namespace GoogleApp
             var emulatorHostAndPort = Environment.GetEnvironmentVariable("PUBSUB_EMULATOR_HOST");
             //var pubsubProjectId = Environment.GetEnvironmentVariable("PUBSUB_PROJECT_ID");
 
-            //TODO: fix consistent behaviour, create subscription before first publish if not existing
+            var serialization = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Error
+            };
+
             var source = new GoogleSource(topicId, projectId, subscriptionId);
+            var p = new GoogleMailman(emulatorHostAndPort, projectId, topicId, s => JsonConvert.SerializeObject(s, serialization));
+
+            //first message published creates exchange if non existent
+            var msgId = await p.PublishOneAsync(new Msg(-1), subscriptionId);
+
+            Console.WriteLine(msgId);
+
             var sink = new GoogleSink(source, subscriptionId);
 
             var mb = new GoogleMailbox(projectId, emulatorHostAndPort, sink);
@@ -35,18 +46,6 @@ namespace GoogleApp
             }, 
             Console.WriteLine,
             Console.WriteLine);
-
-            var serialization = new JsonSerializerSettings
-            {
-                MissingMemberHandling = MissingMemberHandling.Error
-            };
-
-            var p = new GoogleMailman(emulatorHostAndPort, projectId, topicId, s => JsonConvert.SerializeObject(s, serialization));
-
-            //first message published creates exchange if non existent
-            var msgId = await p.PublishOneAsync(new Msg(-1));
-
-            Console.WriteLine(msgId);
 
             while (true)
             {

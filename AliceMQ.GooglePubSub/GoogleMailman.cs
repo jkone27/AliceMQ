@@ -23,7 +23,7 @@ namespace AliceMQ.GooglePubSub
             this.serializer = serializer;
         }
 
-        public async Task<string> PublishOneAsync<T>(T message, CancellationToken cancellationToken = default)
+        public async Task<string> PublishOneAsync<T>(T message, string withSubscriptionId = null, CancellationToken cancellationToken = default)
         {
             //PublisherServiceApiClient publisherService = await PublisherServiceApiClient.CreateAsync
             PublisherServiceApiClient publisherService = new PublisherServiceApiClientBuilder
@@ -41,6 +41,27 @@ namespace AliceMQ.GooglePubSub
             catch
             {
                 //already exists
+            }
+
+            if (!string.IsNullOrWhiteSpace(withSubscriptionId))
+            {
+                //SubscriberServiceApiClient subscriberService = await SubscriberServiceApiClient.CreateAsync();
+                SubscriberServiceApiClient subscriberService = new SubscriberServiceApiClientBuilder
+                {
+                    Endpoint = endpoint,
+                    ChannelCredentials = ChannelCredentials.Insecure
+                }.Build();
+
+                SubscriptionName subscriptionName = new SubscriptionName(projectId, withSubscriptionId);
+
+                try
+                {
+                    subscriberService.CreateSubscription(subscriptionName, topicName, pushConfig: null, ackDeadlineSeconds: 60);
+                }
+                catch
+                {
+                    //already exists
+                }
             }
 
             return await PublishAsync(topicName, endpoint, message);
