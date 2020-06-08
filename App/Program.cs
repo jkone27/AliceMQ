@@ -13,8 +13,7 @@ namespace App
         {
             var source = new Source("A", "A.q");
             var endPoint = new EndPoint();
-            var sink = new Sink(source);
-
+           
             var serialization = new JsonSerializerSettings
             {
                 MissingMemberHandling = MissingMemberHandling.Error
@@ -25,6 +24,8 @@ namespace App
             //first message published creates exchange if non existent
             p.PublishOne(new Msg(-1),"");
 
+            var sink = new Sink(source);
+
             //var mb = new SimpleMailbox(endPoint, sink);
 
             //var d = mb.Subscribe(am =>
@@ -32,6 +33,7 @@ namespace App
             //    Console.WriteLine("A - " + Encoding.UTF8.GetString(am.EventArgs.Body));
             //    am.Channel.BasicAck(am.EventArgs.DeliveryTag, false);
             //});
+
 
             var sfm = new Mailbox<Msg>(endPoint, sink, s => JsonConvert.DeserializeObject<Msg>(s, serialization));
 

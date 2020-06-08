@@ -1,15 +1,16 @@
 ﻿namespace Alice.Domain
 
+//TODO
+
 type Provider = RabbitMq | GooglePubSub
 
 type Message<'a> = 
     | Received of 'a
     | Error of string
 
-type Topic = 
-    { ConnectionString: string }
+type Topic = { ExchangeName: string } //exchange
 
-type Subscription = unit //queue
+type Subscription = { QueueName: string } //queue
 
 type IPublisher = 
     abstract member Topic : Topic   

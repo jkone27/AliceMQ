@@ -1,10 +1,10 @@
+using Alice.Core.Types;
 using System.Collections.Generic;
 
-namespace Alice.Core.Types
+namespace AliceMQ.Rabbit.Mailman
 {
     public class Exchange : IExchange
     {
-        public Exchange() { }
         public Exchange(string exchangeName, 
 			string exchangeType, 
 			IDictionary<string, object> properties = null, 

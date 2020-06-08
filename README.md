@@ -1,4 +1,4 @@
-# AliceMQ
+# AliceMQ [![NuGet Badge](https://buildstats.info/nuget/AliceMQ)](https://www.nuget.org/packages/AliceMQ)
 
 <img src="https://github.com/jkone27/AliceMQ/blob/master/Pics/Whiterabbit_tenniel.jpg?raw=true" width="20%" height="20%"/>
 
