@@ -3,7 +3,7 @@ using System;
 
 namespace AliceMQ.GooglePubSub
 {
-    public class GoogleSink : ISink
+    public class Sink : ISink
     {
         public ISource Source { get; }
 
@@ -13,7 +13,7 @@ namespace AliceMQ.GooglePubSub
 
         public string DeadLetterExchangeName { get; }
 
-        public GoogleSink(GoogleSource source, string subscriptionName)
+        public Sink(Source source, string subscriptionName)
         {
             Source = source;
         }

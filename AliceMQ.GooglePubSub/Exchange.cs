@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace AliceMQ.GooglePubSub
 {
-    public class GoogleTopic : IExchange
+    public class Exchange : IExchange
     {
-        public string ExchangeName { get; }
+        public string ExchangeName { get; } // topic name
 
         public string ExchangeType => string.Empty;
 
@@ -15,7 +15,7 @@ namespace AliceMQ.GooglePubSub
 
         public IDictionary<string, object> Properties => new Dictionary<string, object>();
 
-        public GoogleTopic(string topicName)
+        public Exchange(string topicName)
         {
             ExchangeName = topicName;
         }

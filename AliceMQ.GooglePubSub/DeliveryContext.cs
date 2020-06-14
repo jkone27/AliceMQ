@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AliceMQ.GooglePubSub
 {
-    public class GoogleMailboxContext : IDeliveryContext
+    public class DeliveryContext : IDeliveryContext
     {
         private readonly PubsubMessage message;
         private readonly SubscriberClient subscriberClient;
@@ -14,7 +14,7 @@ namespace AliceMQ.GooglePubSub
 
         public SubscriberClient.Reply Reply { get; private set; }
 
-        public GoogleMailboxContext(PubsubMessage message, SubscriberClient subscriberClient)
+        public DeliveryContext(PubsubMessage message, SubscriberClient subscriberClient)
         {
             this.message = message;
             this.subscriberClient = subscriberClient;

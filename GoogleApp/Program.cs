@@ -13,6 +13,8 @@ namespace GoogleApp
         const string topicId = "topic1";
         const string subscriptionId = "subscription1";
 
+        private static readonly Random rnd = new Random();
+
         static async Task Main(string[] args)
         {
             Environment.SetEnvironmentVariable("PUBSUB_EMULATOR_HOST", "localhost:8681");
@@ -24,28 +26,28 @@ namespace GoogleApp
                 MissingMemberHandling = MissingMemberHandling.Error
             };
 
-            var source = new GoogleSource(topicId, projectId, subscriptionId);
-            var p = new GoogleMailman(emulatorHostAndPort, projectId, topicId, s => JsonConvert.SerializeObject(s, serialization));
+            var source = new Source(topicId, projectId, subscriptionId);
+            var p = new Mailman(emulatorHostAndPort, projectId, topicId, s => JsonConvert.SerializeObject(s, serialization));
 
             //first message published creates exchange if non existent
-            var msgId = await p.PublishOneAsync(new Msg(-1), subscriptionId);
+            var msgId = await p.PublishOneAsync(new Msg(rnd.Next(1,100)), subscriptionId);
 
             Console.WriteLine(msgId);
 
-            var sink = new GoogleSink(source, subscriptionId);
+            var sink = new Sink(source, subscriptionId);
 
-            var mb = new GoogleMailbox(projectId, emulatorHostAndPort, sink);
+            var mb = new SimpleMailbox(projectId, emulatorHostAndPort, sink);
 
             //fake disposable
             var _ = mb.Subscribe(am =>
             {
                 Console.WriteLine("A - " + am.Payload);
                 am.Ack(false);
-
-                throw new Exception("completed");
             }, 
             Console.WriteLine,
             Console.WriteLine);
+
+            Console.WriteLine("press Y to exit.., any other key to publish a new msg");
 
             while (true)
             {
@@ -53,6 +55,10 @@ namespace GoogleApp
                 {
                     break;
                 }
+
+                var newMsgId = await p.PublishOneAsync(new Msg(rnd.Next(1, 100)), subscriptionId);
+
+                Console.WriteLine(newMsgId);
             }
 
         }

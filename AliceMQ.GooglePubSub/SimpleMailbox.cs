@@ -4,15 +4,10 @@ using Alice.Core.Types;
 using Google.Cloud.PubSub.V1;
 using Grpc.Core;
 using System;
-using System.Collections.Generic;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Reactive.Threading.Tasks;
-using System.Threading.Tasks;
 
 namespace AliceMQ.GooglePubSub
 {
-    public class GoogleMailbox : ISimpleMailbox
+    public class SimpleMailbox : ISimpleMailbox
     {
         public string ConnectionUrl { get; }
         public string QueueName => Sink.Source.QueueArgs.QueueName;
@@ -23,7 +18,7 @@ namespace AliceMQ.GooglePubSub
 
         public string ProjectId { get; }
 
-        public GoogleMailbox(string projectId, string connectionUrl, GoogleSink sink)
+        public SimpleMailbox(string projectId, string connectionUrl, Sink sink)
         {
             ProjectId = projectId;
             ConnectionUrl = connectionUrl;
@@ -44,7 +39,7 @@ namespace AliceMQ.GooglePubSub
 
             try
             {
-                subscriberService.CreateSubscription(QueueName, ExchangeName, pushConfig: null, ackDeadlineSeconds: 60);
+                var subscription = subscriberService.CreateSubscription(QueueName, ExchangeName, pushConfig: null, ackDeadlineSeconds: 60);
             }
             catch
             {
@@ -55,30 +50,30 @@ namespace AliceMQ.GooglePubSub
                 new SubscriberClient.ClientCreationSettings(null, null, ChannelCredentials.Insecure, ConnectionUrl))
                 .ConfigureAwait(false).GetAwaiter().GetResult();
 
-            var subscriberTask = subscriber.StartAsync((msg, cancellationToken) =>
+            var subscriberTask = subscriber.StartAsync(async (msg, cancellationToken) =>
             {
                 try
                 {
                     if (cancellationToken.IsCancellationRequested)
                     {
-                        subscriber.StopAsync(cancellationToken);
+                        await subscriber.StopAsync(cancellationToken);
                         observer.OnCompleted();
                         cancellationToken.ThrowIfCancellationRequested();
                     }
 
-                    var context = new GoogleMailboxContext(msg, subscriber);
+                    var context = new DeliveryContext(msg, subscriber);
 
                     //TODO: mutation not working
                     observer.OnNext(context);
 
                     // Return Reply.Ack to indicate this message has been handled.
-                    return Task.FromResult(context.Reply);
+                    return context.Reply;
 
                 }
                 catch(Exception ex)
                 {
                     observer.OnError(ex);
-                    return Task.FromResult(SubscriberClient.Reply.Nack);
+                    return SubscriberClient.Reply.Nack;
                 }
             });
 

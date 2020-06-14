@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace AliceMQ.GooglePubSub
 {
-    public class GoogleMailman
+    public class Mailman
     {
         private readonly string endpoint;
         private readonly string projectId;
         private readonly string topicId;
         private readonly Func<object, string> serializer;
 
-        public GoogleMailman(string endpoint, string projectId, string topicId, Func<object,string> serializer)
+        public Mailman(string endpoint, string projectId, string topicId, Func<object,string> serializer)
         {
             this.endpoint = endpoint;
             this.projectId = projectId;

@@ -14,15 +14,15 @@ namespace AliceMQ.Rabbit.Mailman
         public bool DefaultExchange => string.IsNullOrWhiteSpace(ExchangeName);
 
         public readonly ConnectionFactory Factory;
-		private readonly IExchange _exchange;
+        private readonly IExchange _exchange;
         private readonly Func<object, string> _serializer;
 
         public Mailman(
-            EndPoint simpleEndpoint, 
-            IExchange exchange, 
-            Func<object,string> serializer)
+            EndPoint simpleEndpoint,
+            IExchange exchange,
+            Func<object, string> serializer)
         {
-			_exchange = exchange;
+            _exchange = exchange;
             _serializer = serializer;
             Factory = new ConnectionFactory
             {
@@ -45,7 +45,7 @@ namespace AliceMQ.Rabbit.Mailman
                                           _exchange.AutoDelete,
                                           _exchange.Properties);
                 }
-                  
+
                 return channel.CreateBasicProperties();
             }
             catch (Exception ex)
@@ -55,7 +55,7 @@ namespace AliceMQ.Rabbit.Mailman
         }
 
         private void RabbitSendMessage(IModel channel, string message,
-            IBasicProperties props, string routingKey) 
+            IBasicProperties props, string routingKey)
         {
             channel.BasicPublish(ExchangeName,
                 routingKey,
@@ -88,35 +88,35 @@ namespace AliceMQ.Rabbit.Mailman
 
         private Action<IModel> SendMessageOnChannel<T>(T message, string routingKey, Action<IBasicProperties> propertiesSetter = null)
         {
-            if(message == null)
+            if (message == null)
             {
                 return channel => { };
             }
 
             return channel => RabbitSendMessage(
-                channel, 
-                _serializer(message), 
-                UpdateProperties(propertiesSetter)(channel), 
+                channel,
+                _serializer(message),
+                UpdateProperties(propertiesSetter)(channel),
                 routingKey);
         }
 
         public void PublishOne<T>(T message, string routingKey, Action<IBasicProperties> applyStaticProperties)
         {
-            TryApplyOnNewChannel(SendMessageOnChannel(message,routingKey, applyStaticProperties));
+            TryApplyOnNewChannel(SendMessageOnChannel(message, routingKey, applyStaticProperties));
         }
 
         public void PublishSome<T>(IEnumerable<T> messages, string routingKey, Action<IBasicProperties> applyStaticProperties)
         {
-            TryApplyOnNewChannel(SendManyMessagesOnChannel(messages,routingKey, applyStaticProperties));
+            TryApplyOnNewChannel(SendManyMessagesOnChannel(messages, routingKey, applyStaticProperties));
         }
 
-        private Action<IModel> SendManyMessagesOnChannel<T>(IEnumerable<T> messages, string routingKey, 
+        private Action<IModel> SendManyMessagesOnChannel<T>(IEnumerable<T> messages, string routingKey,
             Action<IBasicProperties> applyStaticProperties)
         {
             return messages
                 .Select(m => SendMessageOnChannel(
-                    m, 
-                    routingKey, 
+                    m,
+                    routingKey,
                     applyStaticProperties))
                 .Aggregate((previous, next) => previous + next);
         }

@@ -37,10 +37,15 @@ namespace AliceMQ.Rabbit.MailBox
             var utility = SetupEnvironment();
             var consumer = new EventingBasicConsumer(utility.Channel);
 
+            //consumer.Received += (o, e) => observer.OnNext(new DeliveryContext(e, utility.Channel));
+            //consumer.ConsumerCancelled += (o, e) => observer.OnCompleted();
+            //consumer.Shutdown += (o, e) => observer.OnError(new Exception(e.ReplyText));
+            //consumer.Unregistered += (o, e) => observer.OnCompleted();
+
             var ob = Observable
                 .FromEventPattern<BasicDeliverEventArgs>(consumer, nameof(consumer.Received))
                 .Select(e => e.EventArgs)
-                .Select(s => new MailboxContext(s, utility.Channel));
+                .Select(s => new DeliveryContext(s, utility.Channel));
 
             var subscription = ob.Subscribe(observer.OnNext, observer.OnError, observer.OnCompleted);
             utility.Disposables.Add(subscription);
@@ -51,8 +56,7 @@ namespace AliceMQ.Rabbit.MailBox
         }
 
         private void StartConsumer(IModel channel, EventingBasicConsumer consumer) =>
-            channel.BasicConsume(Sink.Source.QueueArgs.QueueName, 
-                Sink.ConfirmationPolicy.AutoAck, consumer);
+            channel.BasicConsume(Sink.Source.QueueArgs.QueueName, Sink.ConfirmationPolicy.AutoAck, consumer);
 
         private MailboxConnection SetupEnvironment()
         {

@@ -3,15 +3,15 @@ using System;
 
 namespace AliceMQ.GooglePubSub
 {
-    public class GoogleSource : ISource
+    public class Source : ISource
     {
         public IExchange Exchange { get; }
         public IQueueArgs QueueArgs { get; }
         public string ProjectId { get; }
 
-        public GoogleSource(string topicName, string projectId, string subscriptionId)
+        public Source(string topicName, string projectId, string subscriptionId)
         {
-            Exchange = new GoogleTopic(topicName);
+            Exchange = new Exchange(topicName);
             QueueArgs = new QueueArgs(subscriptionId);
             ProjectId = projectId;
         }

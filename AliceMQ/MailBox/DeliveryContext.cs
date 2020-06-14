@@ -5,13 +5,13 @@ using RabbitMQ.Client.Events;
 
 namespace AliceMQ.Rabbit.MailBox
 {
-    public class MailboxContext : IDeliveryContext
+    public class DeliveryContext : IDeliveryContext
     {
         public BasicDeliverEventArgs EventArgs { get; }
         public IModel Channel { get; }
         public ulong DeliveryTag { get; }
 
-        public MailboxContext(BasicDeliverEventArgs eventArgs, IModel channel)
+        public DeliveryContext(BasicDeliverEventArgs eventArgs, IModel channel)
         {
             EventArgs = eventArgs;
             Channel = channel;

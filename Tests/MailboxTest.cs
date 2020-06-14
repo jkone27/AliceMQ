@@ -45,7 +45,7 @@ namespace Tests
 
             var src = Observable
                 .FromEventPattern<BasicDeliverEventArgs>(testEvent, nameof(testEvent.FakeEvent))
-                .Select(e => new MailboxContext(e.EventArgs, null));
+                .Select(e => new DeliveryContext(e.EventArgs, null));
 
             var c = new FakeSimpleMailbox(src, autoAck: true);
             c.Subscribe(m => 
@@ -108,7 +108,7 @@ namespace Tests
             var s = new TestScheduler();
             var src = Observable
                 .Interval(TimeSpan.FromTicks(1), s)
-                .Select(z => new MailboxContext(NewArgs(), null));
+                .Select(z => new DeliveryContext(NewArgs(), null));
 
             var c = new FakeMailbox<string>(new FakeSimpleMailbox(src, autoAck: true), str => str);
 
@@ -125,7 +125,7 @@ namespace Tests
             var s = new TestScheduler();
             var src = Observable
                 .Interval(TimeSpan.FromTicks(1), s)
-                .Select(z => new MailboxContext(NewArgs(WrongPayload), null));
+                .Select(z => new DeliveryContext(NewArgs(WrongPayload), null));
 
             var c = new FakeMailbox<TestMessage>(new FakeSimpleMailbox(src, autoAck: true), JsonConvert.DeserializeObject<TestMessage>);
             c.Subscribe(m =>
@@ -155,7 +155,7 @@ namespace Tests
 
             var src = Observable
                 .Interval(TimeSpan.FromTicks(1), s)
-                .Select(z => new MailboxContext(NewArgs(), channel.Object));
+                .Select(z => new DeliveryContext(NewArgs(), channel.Object));
 
             var mb = new FakeSimpleMailbox(src);
             var custom = new FakeMailbox<string>(mb, str => str);
@@ -180,7 +180,7 @@ namespace Tests
 
             var src = Observable
                 .Interval(TimeSpan.FromTicks(1), s)
-                .Select(z => new MailboxContext(NewArgs(), channel.Object));
+                .Select(z => new DeliveryContext(NewArgs(), channel.Object));
 
             var mb = new FakeSimpleMailbox(src);
             var custom = new FakeMailbox<string>(mb, str => str);
@@ -206,7 +206,7 @@ namespace Tests
 
             var src = Observable
                 .Interval(TimeSpan.FromTicks(1), s)
-                .Select(z => new MailboxContext(NewArgs(), channel.Object));
+                .Select(z => new DeliveryContext(NewArgs(), channel.Object));
 
             var mb = new FakeSimpleMailbox(src);
             var typed = new FakeMailbox<string>(mb, str => str);
@@ -238,7 +238,7 @@ namespace Tests
 
             var src = Observable
                 .Interval(TimeSpan.FromTicks(1), s)
-                .Select(z => new MailboxContext(NewArgs(WrongPayload), channel.Object));
+                .Select(z => new DeliveryContext(NewArgs(WrongPayload), channel.Object));
 
             var mb = new FakeSimpleMailbox(src);
             var typed = new FakeMailbox<TestMessage>(mb, JsonConvert.DeserializeObject<TestMessage>);
