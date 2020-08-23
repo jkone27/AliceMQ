@@ -2,6 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>jkone27</Authors>
+    <Product>AliceMQ.GooglePubSub</Product>
+    <PackageId>AliceMQ.GooglePubSub</PackageId>
+    <NeutralLanguage>en</NeutralLanguage>
+    <Description>simple supsub client wrapper for common operations</Description>
+    <Copyright>MIT licence</Copyright>
+    <PackageLicenseUrl>http://opensource.org/licenses/MIT</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/jkone27/AliceMQ</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/jkone27/AliceMQ/master/Pics/whiterabbitico01.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/jkone27/AliceMQ</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>pubsub,messaging,alice,queue,reactive,rx</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

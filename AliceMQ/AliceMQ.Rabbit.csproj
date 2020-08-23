@@ -2,8 +2,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>jkone27</Authors>
-    <Product>AliceMQ</Product>
-    <PackageId>AliceMQ</PackageId>
+    <Product>AliceMQ.Rabbit</Product>
+    <PackageId>AliceMQ.Rabbit</PackageId>
     <NeutralLanguage>en</NeutralLanguage>
     <Description>simple RabbitMQ.Client wrapper for common operations</Description>
     <Copyright>MIT licence</Copyright>
