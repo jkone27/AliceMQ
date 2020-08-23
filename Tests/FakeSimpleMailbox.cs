@@ -1,7 +1,7 @@
 using System;
-using Alice.Core;
-using Alice.Core.Message;
-using Alice.Core.Types;
+using AliceMQ.Core;
+using AliceMQ.Core.Message;
+using AliceMQ.Core.Types;
 using AliceMQ.Rabbit.MailBox;
 
 namespace Tests

@@ -1,4 +1,4 @@
-﻿using Alice.Core.Message;
+﻿using AliceMQ.Core.Message;
 using Google.Cloud.PubSub.V1;
 using System.Text;
 

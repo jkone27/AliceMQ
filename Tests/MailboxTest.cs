@@ -2,7 +2,7 @@
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
-using Alice.Core.Message;
+using AliceMQ.Core.Message;
 using AliceMQ.Rabbit.MailBox;
 using Microsoft.Reactive.Testing;
 using Moq;

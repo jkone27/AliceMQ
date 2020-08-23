@@ -1,4 +1,4 @@
-using Alice.Core.Types;
+using AliceMQ.Core.Types;
 using System.Collections.Generic;
 
 namespace AliceMQ.Rabbit.Mailman

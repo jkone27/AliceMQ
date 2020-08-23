@@ -1,5 +1,5 @@
 using System.Text;
-using Alice.Core.Message;
+using AliceMQ.Core.Message;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 

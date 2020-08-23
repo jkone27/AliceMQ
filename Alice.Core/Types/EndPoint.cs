@@ -1,6 +1,6 @@
 using System;
 
-namespace Alice.Core.Types
+namespace AliceMQ.Core.Types
 {
     public class EndPoint: INetworkRecoveryInfo
     {

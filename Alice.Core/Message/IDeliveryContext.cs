@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Alice.Core.Message
+namespace AliceMQ.Core.Message
 {
     public interface IDeliveryContext
     {

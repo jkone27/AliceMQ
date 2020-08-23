@@ -1,4 +1,4 @@
-namespace Alice.Core.Types
+namespace AliceMQ.Core.Types
 {
     public class BasicQualityOfService
     {

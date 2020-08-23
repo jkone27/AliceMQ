@@ -1,4 +1,4 @@
-namespace Alice.Core.Message
+namespace AliceMQ.Core.Message
 {
     public class Ok<T> : IContext
     {

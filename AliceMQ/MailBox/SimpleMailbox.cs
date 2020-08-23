@@ -1,9 +1,9 @@
 using System;
 using System.Reactive.Linq;
-using Alice.Core;
-using Alice.Core.Exceptions;
-using Alice.Core.Message;
-using Alice.Core.Types;
+using AliceMQ.Core;
+using AliceMQ.Core.Exceptions;
+using AliceMQ.Core.Message;
+using AliceMQ.Core.Types;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 

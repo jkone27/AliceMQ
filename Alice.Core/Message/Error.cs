@@ -1,6 +1,6 @@
 using System;
 
-namespace Alice.Core.Message
+namespace AliceMQ.Core.Message
 {
     public class Error : IContext
     {

@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Alice.Core\Alice.Core.csproj" />
+    <ProjectReference Include="..\Alice.Core\AliceMQ.Core.csproj" />
   </ItemGroup>
 
 </Project>

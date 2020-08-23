@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Alice.Core.Types
+namespace AliceMQ.Core.Types
 {
     public class QueueBind
     {

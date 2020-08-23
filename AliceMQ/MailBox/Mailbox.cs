@@ -1,8 +1,8 @@
 using System;
 using System.Reactive.Linq;
-using Alice.Core;
-using Alice.Core.Message;
-using Alice.Core.Types;
+using AliceMQ.Core;
+using AliceMQ.Core.Message;
+using AliceMQ.Core.Types;
 
 namespace AliceMQ.Rabbit.MailBox
 {

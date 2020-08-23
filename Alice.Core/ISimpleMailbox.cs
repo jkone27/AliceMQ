@@ -1,8 +1,8 @@
-using Alice.Core.Message;
-using Alice.Core.Types;
+using AliceMQ.Core.Message;
+using AliceMQ.Core.Types;
 using System;
 
-namespace Alice.Core
+namespace AliceMQ.Core
 {
     public interface ISimpleMailbox : IObservable<IDeliveryContext>
     {

@@ -1,6 +1,6 @@
 using System;
 
-namespace Alice.Core.Exceptions
+namespace AliceMQ.Core.Exceptions
 {
     public class SetupException : Exception
     {

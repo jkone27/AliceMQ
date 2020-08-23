@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Alice.Core
+namespace AliceMQ.Core
 {
     public interface IMailman
     {

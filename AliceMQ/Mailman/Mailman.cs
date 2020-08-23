@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Alice.Core;
-using Alice.Core.Exceptions;
-using Alice.Core.Types;
+using AliceMQ.Core;
+using AliceMQ.Core.Exceptions;
+using AliceMQ.Core.Types;
 using RabbitMQ.Client;
 
 namespace AliceMQ.Rabbit.Mailman

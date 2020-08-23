@@ -1,6 +1,6 @@
 ﻿using System;
-using Alice.Core.Message;
-using Alice.Core.Types;
+using AliceMQ.Core.Message;
+using AliceMQ.Core.Types;
 using AliceMQ.Rabbit.MailBox;
 using AliceMQ.Rabbit.Mailman;
 using Newtonsoft.Json;

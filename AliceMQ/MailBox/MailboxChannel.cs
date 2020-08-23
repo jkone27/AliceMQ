@@ -1,6 +1,6 @@
 using System;
 using System.Reactive.Disposables;
-using Alice.Core.Types;
+using AliceMQ.Core.Types;
 using RabbitMQ.Client;
 
 namespace AliceMQ.Rabbit.MailBox

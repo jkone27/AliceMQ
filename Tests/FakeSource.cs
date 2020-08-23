@@ -1,4 +1,4 @@
-﻿using Alice.Core.Types;
+﻿using AliceMQ.Core.Types;
 
 namespace Tests
 {
