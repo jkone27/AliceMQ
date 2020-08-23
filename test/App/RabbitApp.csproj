@@ -4,9 +4,9 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AliceMQ\AliceMQ.Rabbit.csproj" />
+    <ProjectReference Include="..\..\src\AliceMQ.Rabbit\AliceMQ.Rabbit.csproj" />
   </ItemGroup>
 </Project>

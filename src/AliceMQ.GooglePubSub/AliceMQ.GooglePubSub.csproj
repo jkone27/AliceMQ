@@ -17,12 +17,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Google.Cloud.PubSub.V1" Version="2.0.0" />
+    <PackageReference Include="Google.Cloud.PubSub.V1" Version="2.1.0" />
     <PackageReference Include="System.Reactive" Version="4.4.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Alice.Core\AliceMQ.Core.csproj" />
+    <ProjectReference Include="..\AliceMQ.Core\AliceMQ.Core.csproj" />
   </ItemGroup>
 
 </Project>

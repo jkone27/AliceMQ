@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AliceMQ.GooglePubSub\AliceMQ.GooglePubSub.csproj" />
+    <ProjectReference Include="..\..\src\AliceMQ.GooglePubSub\AliceMQ.GooglePubSub.csproj" />
   </ItemGroup>
 
 </Project>
