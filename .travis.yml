@@ -7,4 +7,4 @@ branches:
     - master
 script:
   - dotnet build
-  - dotnet test ./Tests
+  - dotnet test ./test/AliceMQ.Rabbit.Tests
