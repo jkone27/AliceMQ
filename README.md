@@ -4,9 +4,22 @@
 
 An easy to use frontend for MQ system (now supporting RabbitMq only, but would be nice to extend to other systems) using Reactive Extensions and a Publish/Subscribe paradigm.
 
+
+## local environment setup
+
+
+for rabbitmq:
+
 ```docker
 docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
 ```
+
+or for the google pubsub version you can run an emulator like
+
+```docker
+docker run --rm -ti -p 8681:8681 -e PUBSUB_PROJECT1=test-proj,topic1:subscription1 messagebird/gcloud-pubsub-emulator:latest     
+```
+
 
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/jkone27/AliceMQ/issues)
 
@@ -15,7 +28,12 @@ docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-manag
 Usage of a mailman is dead simple:
 
 ```cs
-using AliceMQ.MailMan; //..
+using AliceMQ.Core.Message;
+using AliceMQ.Core.Types;
+using AliceMQ.Rabbit.MailBox; 
+using AliceMQ.Rabbit.Mailman; 
+//or for google pubsub version: using AliceMQ.GooglePubSub;
+//parameters are slightly different..
 
 var source = new Source("A", "A.q");
 var endPoint = new EndPoint();
