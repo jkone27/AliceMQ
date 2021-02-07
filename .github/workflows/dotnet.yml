@@ -40,8 +40,8 @@ jobs:
       run: dotnet test --no-build --verbosity normal
     - name: Pack with dotnet
       run: |
-         dotnet pack src/AliceMQ.Rabbit/AliceMQ.Rabbit.csproj --output nuget-packages/rabbit --configuration Release -p:PackageVersion=${{ steps.gitversion.outputs.nuGetVersionV2 }}-${{ steps.gitversion.outputs.CommitsSinceVersionSourcePadded }} 
-         dotnet pack src/AliceMQ.PubSub/AliceMQ.PubSub.csproj --output nuget-packages/pubsub --configuration Release -p:PackageVersion=${{ steps.gitversion.outputs.nuGetVersionV2 }}-${{ steps.gitversion.outputs.CommitsSinceVersionSourcePadded }} 
+         dotnet pack src/AliceMQ.Rabbit/AliceMQ.Rabbit.csproj --output nuget-packages/rabbit --configuration Release -p:PackageVersion=${{ steps.gitversion.outputs.nuGetVersionV2 }}-alpha 
+         dotnet pack src/AliceMQ.PubSub/AliceMQ.PubSub.csproj --output nuget-packages/pubsub --configuration Release -p:PackageVersion=${{ steps.gitversion.outputs.nuGetVersionV2 }}-alpha 
     - name: Push with dotnet
       run: |
          dotnet nuget push nuget-packages/rabbit/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
