@@ -1,7 +1,7 @@
 ﻿using Alice.Core.Types;
 using System;
 
-namespace AliceMQ.GooglePubSub
+namespace AliceMQ.PubSub
 {
     public class Source : ISource
     {

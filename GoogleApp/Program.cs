@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Threading.Tasks;
-using AliceMQ.GooglePubSub;
+using AliceMQ.PubSub;
 using Newtonsoft.Json;
 
 namespace GoogleApp

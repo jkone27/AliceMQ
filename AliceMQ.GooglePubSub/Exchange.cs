@@ -1,7 +1,7 @@
 ﻿using Alice.Core.Types;
 using System.Collections.Generic;
 
-namespace AliceMQ.GooglePubSub
+namespace AliceMQ.PubSub
 {
     public class Exchange : IExchange
     {

@@ -14,9 +14,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PubSubTest", "PubSubTest\Pu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alice.Core", "Alice.Core\Alice.Core.csproj", "{15E4468B-7A4A-4CAF-9869-FF5A0A91C43A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AliceMQ.GooglePubSub", "AliceMQ.GooglePubSub\AliceMQ.GooglePubSub.csproj", "{CA4078B3-542E-452D-A31F-B3C60B48763A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AliceMQ.PubSub", "AliceMQ.GooglePubSub\AliceMQ.PubSub.csproj", "{CA4078B3-542E-452D-A31F-B3C60B48763A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoogleApp", "GoogleApp\GoogleApp.csproj", "{07CA4CD2-CA16-48AF-B948-12874AB824B0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GTestApp", "GoogleApp\GTestApp.csproj", "{07CA4CD2-CA16-48AF-B948-12874AB824B0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

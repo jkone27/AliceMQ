@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AliceMQ.GooglePubSub
+namespace AliceMQ.PubSub
 {
     public class Mailman
     {
@@ -74,7 +74,7 @@ namespace AliceMQ.GooglePubSub
                new PublisherClient.ClientCreationSettings(null, null, ChannelCredentials.Insecure, emulatorHostAndPort));
 
             // PublishAsync() has various overloads. Here we're using the string overload.
-            string messageId = await publisher.PublishAsync(serializer(message), Encoding.UTF8);
+            string messageId = await publisher.PublishAsync(serializer(message), System.Text.Encoding.UTF8);
 
             // PublisherClient instance should be shutdown after use.
             // The TimeSpan specifies for how long to attempt to publish locally queued messages.

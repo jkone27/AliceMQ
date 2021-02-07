@@ -1,24 +1,27 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Authors>jkone27</Authors>
-    <Product>AliceMQ.Rabbit</Product>
-    <PackageId>AliceMQ.Rabbit</PackageId>
+    <Product>AliceMQ.PubSub</Product>
+    <PackageId>AliceMQ.PubSub</PackageId>
     <NeutralLanguage>en</NeutralLanguage>
-    <Description>simple RabbitMQ.Client wrapper for common operations</Description>
+    <Description>simple g pubsub client reactive wrapper for common operations</Description>
     <Copyright>MIT licence</Copyright>
     <PackageLicenseUrl>http://opensource.org/licenses/MIT</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/jkone27/AliceMQ</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/jkone27/AliceMQ/master/Pics/whiterabbitico01.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/jkone27/AliceMQ</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>Rabbitmq,messaging,alice,queue,reactive,rx</PackageTags>
+    <PackageTags>pubsub,messaging,alice,queue,reactive,rx</PackageTags>
   </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="RabbitMq.Client" Version="6.2.1" />
+    <PackageReference Include="Google.Cloud.PubSub.V1" Version="2.3.0" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
   </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Alice.Core\Alice.Core.csproj" />
   </ItemGroup>
+
 </Project>

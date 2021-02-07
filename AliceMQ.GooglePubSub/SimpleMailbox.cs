@@ -5,7 +5,7 @@ using Google.Cloud.PubSub.V1;
 using Grpc.Core;
 using System;
 
-namespace AliceMQ.GooglePubSub
+namespace AliceMQ.PubSub
 {
     public class SimpleMailbox : ISimpleMailbox
     {
