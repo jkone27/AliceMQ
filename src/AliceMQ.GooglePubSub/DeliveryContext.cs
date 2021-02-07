@@ -2,7 +2,7 @@
 using Google.Cloud.PubSub.V1;
 using System.Text;
 
-namespace AliceMQ.GooglePubSub
+namespace AliceMQ.PubSub
 {
     public class DeliveryContext : IDeliveryContext
     {

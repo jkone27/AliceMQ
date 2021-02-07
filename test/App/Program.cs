@@ -5,7 +5,7 @@ using AliceMQ.Rabbit.MailBox;
 using AliceMQ.Rabbit.Mailman;
 using Newtonsoft.Json;
 
-namespace App
+namespace RabbitApp
 {
     class Program
     {
@@ -40,7 +40,7 @@ namespace App
 
             Console.WriteLine("waiting for messages..");
 
-            var d = sfm.Subscribe(am =>
+            using var d = sfm.Subscribe(am =>
             {
                 if (am.IsOk<Msg>())
                 {
@@ -68,10 +68,6 @@ namespace App
                     p.PublishOne("{ \"wrong\": \"message\" }", ""); //publish a broken message to test exception handling
                 exit = Console.ReadKey().Key;
             }
-
-            //d.Dispose();
-            d.Dispose();
-
         }
     }
 }

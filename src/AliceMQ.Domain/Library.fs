@@ -2,7 +2,7 @@
 
 //TODO
 
-type Provider = RabbitMq | GooglePubSub
+type Provider = Rabbit | PubSub
 
 type Message<'a> = 
     | Received of 'a

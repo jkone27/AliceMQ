@@ -2,8 +2,8 @@
 
 <img src="https://github.com/jkone27/AliceMQ/blob/master/Pics/Whiterabbit_tenniel.jpg?raw=true" width="20%" height="20%"/>
 
-An easy to use frontend for Message Queues systems, now supporting RabbitMq and partially google pubsub (TBR), using Reactive Extensions and a Publish/Subscribe paradigm.
-
+A reactive client library with support for RabbitMq and experimental support for google pubsub (TBR), 
+using reactive extensions for .net
 
 ## local environment setup
 
@@ -32,7 +32,7 @@ using AliceMQ.Core.Message;
 using AliceMQ.Core.Types;
 using AliceMQ.Rabbit.MailBox; 
 using AliceMQ.Rabbit.Mailman; 
-//or for google pubsub version: using AliceMQ.GooglePubSub;
+//for for g pubsub version: using AliceMQ.PubSub;
 //parameters are slightly different..
 
 var source = new Source("A", "A.q");
@@ -44,7 +44,7 @@ var serialization = new JsonSerializerSettings
         MissingMemberHandling = MissingMemberHandling.Error
     };
 
- var p = new Mailman(endPoint, source.Exchange, s => JsonConvert.SerializeObject(s, serialization));
+var p = new Mailman(endPoint, source.Exchange, s => JsonConvert.SerializeObject(s, serialization));
 
 //first message published creates exchange if non existent
 p.PublishOne(new Msg(-1),"");
@@ -61,14 +61,11 @@ using AliceMQ.Mailbox;
 
 var mb = new SimpleMailbox(endPoint, sink);
 
-var d = mb.Subscribe(am =>
+using var d = mb.Subscribe(am =>
 {
     Console.WriteLine("A - " + Encoding.UTF8.GetString(am.EventArgs.Body));
     am.Channel.BasicAck(am.EventArgs.DeliveryTag, false);
 });
-
-//...
-d.Dispose();
 
 ```
 
@@ -79,7 +76,7 @@ let's consider an example DTO class Msg, the typed consumer is build upon the co
 ```cs
 var sfm = new Mailbox<Msg>(endPoint, sink, s => JsonConvert.DeserializeObject<Msg>(s, serialization));
 
-var d = sfm.Subscribe(am =>
+using var d = sfm.Subscribe(am =>
 {
     if (am.IsOk<Msg>())
     {
@@ -95,80 +92,6 @@ var d = sfm.Subscribe(am =>
 },
 ex => Console.WriteLine("COMPLETE ERROR"),
 () => Console.WriteLine("COMPLETE"));
-
-//...
-d.Dispose();
-```
-
-## Utility Types
-
-Both Mailman and Mailbox need that you provide some basic parameters for configuring the Endpoint, the Source (namely Exchange and Queue), and the Mailbox (with more sofisticated configurations).
-
-### EndpointArgs
-
-```cs
-string ConnectionUrl
-bool AutomaticRecoveryEnabled
-TimeSpan NetworkRecoveryInterval
-```
-
-### Source
-
-```cs
-IExchange Exchange
-IQueueArgs QueueArgs
-```
-
-### IExchange
-
-```cs
-string ExchangeName
-string ExchangeType
-bool Durable
-bool AutoDelete
-IDictionary<string, object> Properties
-```
-
-### IQueueArgs
-
-```cs
-string QueueName
-bool Durable
-bool Exclusive
-bool AutoDelete
-```
-
-### Sink
-
-```cs
-string DeadLetterExchangeName
-IDictionary<string, object> QueueDeclareArguments
-Source Source
-BasicQualityOfService BasicQualityOfService
-ConfirmationPolicy ConfirmationPolicy 
-QueueBind QueueBind
-```
-
-### QueueBind
-
-```cs
-string RoutingKey
-IDictionary<string, object> Arguments
-```
-
-### BasicQualityOfService
-
-```cs
-ushort PrefetchCount
-bool Global
-```
-
-### ConfirmationPolicy
-
-```cs
-bool AutoAck
-bool Multiple
-bool Requeue
 ```
 
 ### Status
