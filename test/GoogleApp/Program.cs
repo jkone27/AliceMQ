@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Text;
 using System.Threading.Tasks;
-using AliceMQ.GooglePubSub;
+using AliceMQ.PubSub;
 using Newtonsoft.Json;
 
-namespace GoogleApp
+namespace PubSubApp
 {
     class Program
     {
@@ -39,7 +39,7 @@ namespace GoogleApp
             var mb = new SimpleMailbox(projectId, emulatorHostAndPort, sink);
 
             //fake disposable
-            var _ = mb.Subscribe(am =>
+            using var x = mb.Subscribe(am =>
             {
                 Console.WriteLine("A - " + am.Payload);
                 am.Ack(false);

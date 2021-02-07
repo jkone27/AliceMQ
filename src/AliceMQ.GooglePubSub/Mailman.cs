@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AliceMQ.GooglePubSub
+namespace AliceMQ.PubSub
 {
     public class Mailman
     {

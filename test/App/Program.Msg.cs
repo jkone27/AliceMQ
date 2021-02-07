@@ -1,4 +1,4 @@
-﻿namespace App
+﻿namespace RabbitApp
 {
     public class Msg
     {
