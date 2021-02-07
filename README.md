@@ -2,8 +2,8 @@
 
 <img src="https://github.com/jkone27/AliceMQ/blob/master/Pics/Whiterabbit_tenniel.jpg?raw=true" width="20%" height="20%"/>
 
-An easy to use frontend for Message Queues systems, now supporting RabbitMq and partially google pubsub (TBR), using Reactive Extensions and a Publish/Subscribe paradigm.
-
+A reactive client library with support for RabbitMq and experimental support for google pubsub (TBR), 
+using reactive extensions for .net
 
 ## local environment setup
 
