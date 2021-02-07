@@ -10,7 +10,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RabbitApp", "test\App\Rabbi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PubSubTest", "test\PubSubTest\PubSubTest.csproj", "{54986201-E68E-4A37-995C-55825B052438}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AliceMQ.PubSub", "src\AliceMQ.GooglePubSub\AliceMQ.PubSub.csproj", "{CA4078B3-542E-452D-A31F-B3C60B48763A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AliceMQ.PubSub", "src\AliceMQ.PubSub\AliceMQ.PubSub.csproj", "{CA4078B3-542E-452D-A31F-B3C60B48763A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PubSubApp", "test\GoogleApp\PubSubApp.csproj", "{07CA4CD2-CA16-48AF-B948-12874AB824B0}"
 EndProject
