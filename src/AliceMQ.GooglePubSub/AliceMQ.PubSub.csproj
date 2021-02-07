@@ -1,10 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>jkone27</Authors>
-    <Product>AliceMQ.GooglePubSub</Product>
-    <PackageId>AliceMQ.GooglePubSub</PackageId>
+    <Product>AliceMQ.PubSub</Product>
+    <PackageId>AliceMQ.PubSub</PackageId>
     <NeutralLanguage>en</NeutralLanguage>
     <Description>simple supsub client wrapper for common operations</Description>
     <Copyright>MIT licence</Copyright>
@@ -17,8 +17,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Google.Cloud.PubSub.V1" Version="2.1.0" />
-    <PackageReference Include="System.Reactive" Version="4.4.1" />
+    <PackageReference Include="Google.Cloud.PubSub.V1" Version="2.3.0" />
+    <PackageReference Include="System.Reactive" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\AliceMQ.GooglePubSub\AliceMQ.GooglePubSub.csproj" />
+    <ProjectReference Include="..\..\src\AliceMQ.GooglePubSub\AliceMQ.PubSub.csproj" />
   </ItemGroup>
 
 </Project>

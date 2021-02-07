@@ -9,7 +9,7 @@ namespace AliceMQ.GooglePubSub
         private readonly PubsubMessage message;
         private readonly SubscriberClient subscriberClient;
 
-        public Encoding Encoding => Encoding.UTF8;
+        public System.Text.Encoding Encoding => System.Text.Encoding.UTF8;
         public string Payload => message.Data.ToStringUtf8();
 
         public SubscriberClient.Reply Reply { get; private set; }
